@@ -33,6 +33,7 @@ void GameObject::Render(){
 }
 
 void GameObject::Clean(){
+    delete _Transform;
 }
 
 

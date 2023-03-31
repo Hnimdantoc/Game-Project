@@ -11,6 +11,7 @@ SceneManager::SceneManager(){
 SceneManager::~SceneManager(){}
 
 void SceneManager::Update(float& dt){
+    std::cout << "Scene: " << 1 << "Objects: " << (*GameObjectHandler::GetInstance()->GetGameObjectMap())[1].size() << std::endl; 
     SceneMap[currentScene]->Update(dt);
 }
 void SceneManager::Render(){

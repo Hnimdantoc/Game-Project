@@ -29,7 +29,7 @@ class GameObject
 public:
     GameObject();
     GameObject(Properties* prop);
-    ~GameObject();
+    virtual ~GameObject();
 
     virtual void Render();
     virtual void Update(float& dt);

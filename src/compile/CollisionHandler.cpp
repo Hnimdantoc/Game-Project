@@ -45,8 +45,8 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
             else{
                 Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
             }
-            ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
             (*i)->Clean();
+            ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
             delete *i;
         }
         else if (Player::GetInstance()->GetRigidBody()->getVelocity().y >= 0){ 

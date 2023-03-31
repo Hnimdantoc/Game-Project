@@ -8,9 +8,7 @@ Player* Player::Static_Instance = nullptr;
 Player::Player(){
     Static_Instance = this;
 }
-Player::~Player(){
-    
-}
+Player::~Player(){}
 
 Player::Player(Properties* prop){
     // Self reference
@@ -113,8 +111,6 @@ void Player::Update(float& dt){
 }
 
 void Player::Clean(){
-    Input::GetInstance()->~Input();
-    CollisionHandler::GetInstance()->~CollisionHandler();
     delete _Animation;
     delete _RigidBody;
     delete _Transform;
