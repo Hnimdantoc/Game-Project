@@ -1,0 +1,10 @@
+player res/Assests/human.png
+background res/backgrounds/background.png
+Left_platform res/Assests/Left_platform.png
+Right_platform res/Assests/Right_platform.png
+Hover_platform res/Assests/Hover_platform.png
+samurai_merchant res/Assests/samurai_merchant.png
+Rockstand_merchant res/Assests/Rockstand_merchant.png
+Jump_Dust res/Assests/Jump_Dust.png
+sun res/Assests/sun.png
+moon res/Assests/moon.png
