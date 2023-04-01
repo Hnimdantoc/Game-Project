@@ -40,8 +40,11 @@ void Engine::init(const char* title, int x, int y, int w, int h, Uint32 flags){
 
 void Engine::Quit(){
     Timer::getIntance()->~Timer();
+    SDL_Log("Timer deleted");
     SceneManager::GetInstance()->CleanAllScene();
+    SDL_Log("All scenes deleted");
     SDL_DestroyWindow(window);
+    SDL_Log("Destroyed window");
     TTF_Quit();
     SDL_Quit();
 }

@@ -2,9 +2,7 @@
 #include "GameObjectHandler.hpp"
 
 GameObject::GameObject(){}
-GameObject::~GameObject(){
-
-}
+GameObject::~GameObject(){}
 
 GameObject::GameObject(Properties* prop){
     ID = prop->ID;

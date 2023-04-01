@@ -18,15 +18,18 @@ void SceneManager::Render(){
 }
 
 void SceneManager::ChangeScene(int ID){
+    TextureManager::GetInstance()->Transition();
     Clean();
     if (ID == MENU_SCENE) Menu* menu = new Menu();
     else if (ID == PLAYSCENE) Scene_0* play_scene = new Scene_0();
     currentScene = ID;
+    TextureManager::GetInstance()->Transition(true);
 }
 
 void SceneManager::Clean(){
     SceneMap[currentScene]->Clean();
     delete SceneMap[currentScene];
+    SceneMap.erase(currentScene);
 }
 
 void SceneManager::CleanAllScene(){

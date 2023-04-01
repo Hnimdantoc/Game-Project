@@ -1,5 +1,6 @@
 #include "TextureManager.hpp"
 #include <fstream>
+#include "SceneManager.hpp"
 
 TextureManager::TextureManager(){}
 
@@ -56,6 +57,43 @@ SDL_Texture* TextureManager::CreateTextureFromText(TTF_Font* font, const char* t
     if (text_texture == NULL) std::cout << "Failed to create texture from surface. " << SDL_GetError() << std::endl;
     SDL_FreeSurface(text_surface);
     return text_texture;
+}
+
+void TextureManager::Transition(bool intro){
+    if (intro) {
+        float dt = Timer::getIntance()->getDeltaTime();
+        SceneManager::GetInstance()->Update(dt);
+        SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), 0, 0, 0, 255);
+        SDL_RenderClear(Engine::GetInstance()->GetRenderer());
+        SceneManager::GetInstance()->Render();
+        SDL_RenderPresent(Engine::GetInstance()->GetRenderer());
+    }
+    const Uint32 format = SDL_PIXELFORMAT_ABGR8888;
+    SDL_Surface* snap = SDL_CreateRGBSurfaceWithFormat(0, WIDTH, HEIGHT, 32, format);
+    SDL_RenderReadPixels(Engine::GetInstance()->GetRenderer(), nullptr, format, snap->pixels, snap->pitch);
+    SDL_Texture* scr_shot = SDL_CreateTextureFromSurface(Engine::GetInstance()->GetRenderer(), snap);
+    if (intro){
+        for (int i = 255; i >= 0; i--) {
+            SDL_SetRenderDrawBlendMode(Engine::GetInstance()->GetRenderer(), SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), 0, 0, 0, i);
+            SDL_RenderClear(Engine::GetInstance()->GetRenderer());
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), scr_shot, nullptr, nullptr);
+            SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(), nullptr);
+            SDL_RenderPresent(Engine::GetInstance()->GetRenderer());
+        }
+    }
+    else {
+        for (int i = 0; i <= 255; i++) {
+            SDL_SetRenderDrawBlendMode(Engine::GetInstance()->GetRenderer(), SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), 0, 0, 0, (Uint8)i);
+            SDL_RenderClear(Engine::GetInstance()->GetRenderer());
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), scr_shot, nullptr, nullptr);
+            SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(), nullptr);
+            SDL_RenderPresent(Engine::GetInstance()->GetRenderer());
+        }
+    }
+    SDL_FreeSurface(snap);
+    SDL_DestroyTexture(scr_shot);
 }
 
 void TextureManager::Remove(const char* ID){

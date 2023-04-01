@@ -22,6 +22,7 @@ private:
     Player* player;
     Hover_platform* hover_platform;
     SDL_Texture* hours_texture;
+    
 public:
     TTF_Font* freedom;
     static Scene_0* GetInstance(){return static_instance;}

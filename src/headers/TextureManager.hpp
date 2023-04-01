@@ -18,6 +18,7 @@ public:
     void Clean();
     void Render(const char* ID, int x, int y, int w, int h, float SCALE = 1.0f);
     void AnimationRender(const char* ID, int x, int y, int w, int h, int row, int frame, float SCALE = 1.0f, SDL_RendererFlip _flip = SDL_FLIP_NONE);
+    void Transition(bool intro = false);
     TTF_Font* LoadFont(const char* fontPath, int fontSize);
     SDL_Texture* CreateTextureFromText(TTF_Font* font, const char* text, const SDL_Color& color);
 
