@@ -128,16 +128,23 @@ public:
         SceneManager::GetInstance()->addScene(ID, this);
         static_instance = this;
         font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 70);
+        title = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
     
         Play = TextureManager::GetInstance()->CreateTextureFromText(font, "PLAY", {255, 255, 255});
         play_rect.x = 500;
-        play_rect.y = 0;
+        play_rect.y = 300;
         SDL_QueryTexture(Play, nullptr, nullptr, &play_rect.w, &play_rect.h);
+
+        Title = TextureManager::GetInstance()->CreateTextureFromText(font, "T1 < DEFT", {0, 255, 0});
+        title_rect.x = 500;
+        title_rect.y = 0;
+        SDL_QueryTexture(Title, nullptr, nullptr, &title_rect.w, &title_rect.h);
 
         Option = TextureManager::GetInstance()->CreateTextureFromText(font, "OPTION", {255, 255, 0});
         option_rect.x = 500;
-        option_rect.y = 300;
+        option_rect.y = 500;
         SDL_QueryTexture(Option, nullptr, nullptr, &option_rect.w, &option_rect.h);
+
         currentRect = &play_rect;
         vectorRect.push_back({&play_rect, &option_rect});
     }
@@ -148,15 +155,18 @@ public:
         TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Play, nullptr, &play_rect);
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Option, nullptr, &option_rect);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Title, nullptr, &title_rect);
         SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
     }
 
     inline std::vector<std::vector<SDL_Rect*>>& GetVectorRect(){return vectorRect;}
-    SDL_Rect play_rect, option_rect;
+    SDL_Rect play_rect, option_rect, title_rect;
 private:
     static Menu* static_instance;
     TTF_Font* font;
+    TTF_Font* title;
     SDL_Texture* Play;
+    SDL_Texture* Title;
     SDL_Texture* Option;
     std::vector <std::vector<SDL_Rect*>> vectorRect;
     int ID;
