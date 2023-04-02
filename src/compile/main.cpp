@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 
     while(Engine::GetInstance()->getGameState() == GAME_STATE::PLAYING){
         Timer::getIntance()->Ticks();
-
+    
         Engine::GetInstance()->Events();
         Engine::GetInstance()->Update(Timer::getIntance()->getDeltaTime());
         Engine::GetInstance()->Render();

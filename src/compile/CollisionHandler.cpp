@@ -45,7 +45,8 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
                 }
             }
             else{
-                //Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
+                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                break;
             }
             (*i)->Clean();
             ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
@@ -81,7 +82,7 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
             // Double from platforms
             //else Player::GetInstance()->SetInAir() = true;
         }
-    }
     // Update Player Rect
     Player::GetInstance()->UpdateCollider();
+    }
 }
