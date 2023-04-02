@@ -15,8 +15,11 @@
 #define Ground_W WIDTH // Const
 
 #define PLAYER_SCALE 2
+
 #define MENU_SCENE 0
-#define PLAYSCENE 1
+#define SELECT_SCENE 1
+#define PLAYSCENE 2
+
 
 #define ICON_PATH "res/Icon/t1.png"
 #define R 140

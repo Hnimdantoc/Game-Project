@@ -58,8 +58,10 @@ public:
     void Update(float& dt);
     void Clean();
 private:
+    std::string _id; 
     static Player* Static_Instance;
     Animation JumpDust;
+    int frameCount;
     int jumps;
     float dashTime, dashLength;
     bool inAir, dashing, canDash;

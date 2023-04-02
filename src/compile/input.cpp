@@ -100,8 +100,48 @@ void Input::KeyDown(){
                 Menu::GetInstance()->currentRect = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i][Menu::GetInstance()->j];
                 break;
             case SDL_SCANCODE_RETURN:
-                if (Menu::GetInstance()->currentRect == &Menu::GetInstance()->play_rect) SceneManager::GetInstance()->ChangeScene(PLAYSCENE);
+                if (Menu::GetInstance()->currentRect == &Menu::GetInstance()->play_rect) SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
                 break;
+        }
+    }
+    else if(SceneManager::GetInstance()->GetCurrentSceneID() == SELECT_SCENE){
+        if (Select::GetInstance()->skin_has_been_selected == false){
+            switch (event.key.keysym.scancode){
+                case SDL_SCANCODE_LEFT:
+                    Select::GetInstance()->Skins_iterator--;
+                    if (Select::GetInstance()->Skins_iterator < 0) Select::GetInstance()->Skins_iterator = Select::GetInstance()->vectorSkins.size()-1;
+                    Select::GetInstance()->selected_skin = Select::GetInstance()->vectorSkins[Select::GetInstance()->Skins_iterator];
+                    break;
+                case SDL_SCANCODE_RIGHT:
+                    Select::GetInstance()->Skins_iterator++;
+                    if (Select::GetInstance()->Skins_iterator == Select::GetInstance()->vectorSkins.size()) Select::GetInstance()->Skins_iterator = 0;
+                    Select::GetInstance()->selected_skin = Select::GetInstance()->vectorSkins[Select::GetInstance()->Skins_iterator];
+                    break;
+                case SDL_SCANCODE_RETURN:
+                    Select::GetInstance()->skin_has_been_selected = true;
+                    break;
+            }
+        }
+        else {
+            switch (event.key.keysym.scancode){
+                case SDL_SCANCODE_LEFT:
+                    Select::GetInstance()->Minute_iterator--;
+                    Select::GetInstance()->minute_per_sun-=15;
+                    if (Select::GetInstance()->Minute_iterator < 0) Select::GetInstance()->Minute_iterator = Select::GetInstance()->vectorMinute.size()-1;
+                    if (Select::GetInstance()->minute_per_sun == 0) Select::GetInstance()->minute_per_sun = 45;
+                    Select::GetInstance()->selected_minutes = Select::GetInstance()->vectorMinute[Select::GetInstance()->Minute_iterator];
+                    break;
+                case SDL_SCANCODE_RIGHT:
+                    Select::GetInstance()->Minute_iterator++;
+                    Select::GetInstance()->minute_per_sun += 15;
+                    if (Select::GetInstance()->Minute_iterator == Select::GetInstance()->vectorMinute.size()) Select::GetInstance()->Minute_iterator = 0;
+                    if (Select::GetInstance()->minute_per_sun == 60) Select::GetInstance()->minute_per_sun = 0;
+                    Select::GetInstance()->selected_minutes = Select::GetInstance()->vectorMinute[Select::GetInstance()->Minute_iterator];
+                    break;
+                case SDL_SCANCODE_RETURN:
+                    SceneManager::GetInstance()->ChangeScene(PLAYSCENE);
+                    break;
+            }
         }
     }
 }

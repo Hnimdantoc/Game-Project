@@ -2,19 +2,21 @@
 #include "CollisionHandler.hpp"
 #include "GameObjectHandler.hpp"
 #include "Planet.hpp"
+#include "Scenes.hpp"
 
 Player* Player::Static_Instance = nullptr;
 
 Player::Player(){
     Static_Instance = this;
 }
-Player::~Player(){}
+Player::~Player(){std::cout << "Player deleted" << std::endl;}
 
 Player::Player(Properties* prop){
     // Self reference
     Static_Instance = this;
     /*------------------------------------------------Initiate variables------------------------------------------------*/
-    ID = prop->ID;
+    _id = std::string(prop->ID);
+    ID = _id.c_str();
     w = prop->w;
     h = prop->h;
     layer = prop->layer;
@@ -29,8 +31,8 @@ Player::Player(Properties* prop){
     
     /*animateSpeed: Time per animation frame. The lower the speed the faster the animation
     --------------change this-----\/---------------------------------------------------*/
-    _Animation->SetProp(ID, 0, 6, 150);
-    
+    frameCount = prop->frameCount;
+    _Animation->SetProp(ID, 0, frameCount, 150);
     playerState = STATE::STANDING_RIGHT;
     prevState = playerState;
     inAir = true;
@@ -62,23 +64,22 @@ void Player::Update(float& dt){
     if (_NeedChangeState){
         _NeedChangeState = false;
         if (playerState == STATE::STANDING_RIGHT){
-            _Animation->SetProp(ID, 0, 6, 150);
+            _Animation->SetProp(ID, 0, frameCount, 150);
             SetPrevState();
         }
         else if (playerState == STATE::STANDING_LEFT){
-            _Animation->SetProp(ID, 0, 6, 150, SDL_FLIP_HORIZONTAL);
+            _Animation->SetProp(ID, 0, frameCount, 150, SDL_FLIP_HORIZONTAL);
             SetPrevState();
         }
         else if (playerState == STATE::RUNNING_LEFT){
-            _Animation->SetProp(ID, 1, 6, 80, SDL_FLIP_HORIZONTAL);
+            _Animation->SetProp(ID, 1, frameCount, 80, SDL_FLIP_HORIZONTAL);
             SetPrevState();
         }
         else if (playerState == STATE::RUNNING_RIGHT){
-            _Animation->SetProp(ID, 1, 6, 80);
+            _Animation->SetProp(ID, 1, frameCount, 80);
             SetPrevState();
         }
         else if (playerState == STATE::JUMPING){
-            //_Animation->SetProp(ID, 0, 6, 150);
             SetPrevState();
             //JumpDust.SetProp("Jump_Dust", 0, 5, 80);
         }
