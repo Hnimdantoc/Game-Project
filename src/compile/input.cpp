@@ -57,6 +57,9 @@ void Input::KeyUp(){
     else if (SceneManager::GetInstance()->GetCurrentSceneID() == MENU_SCENE){
 
     }
+    else if (SceneManager::GetInstance()->GetCurrentSceneID() == SELECT_SCENE){
+
+    }
 }
 
 void Input::KeyDown(){
@@ -64,12 +67,20 @@ void Input::KeyDown(){
     
     if (SceneManager::GetInstance()->GetCurrentSceneID() == PLAYSCENE){
         if (event.key.keysym.scancode == PLAYER_JUMP_SCANCODE && Player::GetInstance()->GetRemainJumps() > 0){
-        Player::GetInstance()->SetInAir() = true;
-        Player::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
-        Player::GetInstance()->SetAllowInput() = false;
-        Player::GetInstance()->SetPrevState();
-        Player::GetInstance()->ReduceJumps();
-        Player::GetInstance()->SetState(STATE::JUMPING);
+            if (Player::GetInstance()->GetRemainJumps() == 2) {
+                Player::GetInstance()->j1_x = Player::GetInstance()->getTransform()->x+5;
+                Player::GetInstance()->j1_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
+            }
+            else {
+                Player::GetInstance()->j2_x = Player::GetInstance()->getTransform()->x+5;
+                Player::GetInstance()->j2_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
+            }
+            Player::GetInstance()->SetInAir() = true;
+            Player::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
+            Player::GetInstance()->SetAllowInput() = false;
+            Player::GetInstance()->SetPrevState();
+            Player::GetInstance()->ReduceJumps();
+            Player::GetInstance()->SetState(STATE::JUMPING);
         }
         if (event.key.keysym.scancode == PLAYER_DASH_SCANCODE && Player::GetInstance()->CanDash() && SDL_GetTicks() - Player::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
             Player::GetInstance()->Dashing() = true;

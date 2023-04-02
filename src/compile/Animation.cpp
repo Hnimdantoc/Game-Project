@@ -9,7 +9,7 @@ void Animation::Update(float& dt){
     // Frame time
     frameTime += (int)(dt*1000);
     if (abs(frame - prevFrame) >= 2 && (frame - 1 >= 0)) prevFrame = frame-1;
-    else if (abs(frame - prevFrame) >= 2 && (frame - 1 < 0)) prevFrame = frameCount;
+    else if (abs(frame - prevFrame) >= 2 && (frame - 1 < 0)) prevFrame = frameCount-1;
 }
 
 void Animation::Render(float x, float y, int w, int h, float SCALE){

@@ -50,7 +50,8 @@ Player::Player(Properties* prop){
     _Rect.w = w * PLAYER_SCALE;
     _Rect.h = h * PLAYER_SCALE;
     _Collider = Collider({_Rect.x + OFFSET, _Rect.y, _Rect.w - 2*OFFSET, _Rect.h});
-    JumpDust.SetProp("Jump_Dust", 0, 5, 80);
+    JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
+    JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
     delete prop;
 }
 
@@ -59,7 +60,8 @@ void Player::Render(){
     _Animation->Render(_Transform->x, _Transform->y, w, h, PLAYER_SCALE);
     // Visualize collision box
     _Collider.Render();
-    if (!(JumpDust.GetPrevFrame() == 5 && JumpDust.GetFrame() == 0)) JumpDust.Render(_Collider.GetBox().x, _Collider.GetBox().y + _Collider.GetBox().h, 23, 5, 2);
+    if (!(JumpDust1.GetPrevFrame() == 4 && JumpDust1.GetFrame() == 0) && jumps == 1) JumpDust1.Render(j1_x, j1_y, 23, 5, 2);
+    if (!(JumpDust2.GetPrevFrame() == 4 && JumpDust2.GetFrame() == 0) && jumps == 0) JumpDust2.Render(j2_x, j2_y, 23, 5, 2);
 }
 
 void Player::Update(float& dt){
@@ -84,7 +86,8 @@ void Player::Update(float& dt){
         }
         else if (playerState == STATE::JUMPING){
             SetPrevState();
-            //JumpDust.SetProp("Jump_Dust", 0, 5, 80);
+            JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
+            JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
         }
     }
     if (allowInput){
@@ -111,7 +114,8 @@ void Player::Update(float& dt){
     CollisionHandler::GetInstance()->PlayerCollisions(_Collider);
     // Update the Animation
     _Animation->Update(dt);
-    if (!(JumpDust.GetPrevFrame() == 5 && JumpDust.GetFrame() == 0)) JumpDust.Update(dt);
+    if (!(JumpDust1.GetPrevFrame() == 4 && JumpDust1.GetFrame() == 0) && jumps == 1) JumpDust1.Update(dt);
+    if (!(JumpDust2.GetPrevFrame() == 4 && JumpDust2.GetFrame() == 0) && jumps == 0) JumpDust2.Update(dt);
 }
 
 void Player::Clean(){

@@ -15,6 +15,8 @@ enum STATE {STANDING_RIGHT, STANDING_LEFT, RUNNING_LEFT, RUNNING_RIGHT, JUMPING}
 
 class Player : public GameObject
 {
+public:
+    int j1_x, j1_y, j2_x, j2_y;
 private:
     static Player* Static_Instance;
     int frameCount, jumps;
@@ -23,7 +25,7 @@ private:
     bool enableSmoothMovement, _NeedChangeState, allowInput;
     std::string _id;
     Uint32 lastDash;
-    Animation JumpDust;
+    Animation JumpDust1, JumpDust2;
     STATE playerState, prevState;
 public:
     static Player* GetInstance(){return Static_Instance;}
