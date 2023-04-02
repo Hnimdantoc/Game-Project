@@ -19,6 +19,7 @@ public:
     int w, h, layer, scene, frameCount, spriteRow;
 public:
     Properties();
+    ~Properties(){}
     Properties(const char* _ID, int _x, int _y, int _w, int _h, int _scene, int _layer = 0, int _spriteRow = 0, float _scale = 1.0f, int _frameCount = 0) : ID(_ID), x(_x), y(_y), w(_w), h(_h), layer(_layer), scene(_scene), scale(_scale), frameCount(_frameCount), spriteRow(_spriteRow) {}
     
 };

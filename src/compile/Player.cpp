@@ -51,6 +51,7 @@ Player::Player(Properties* prop){
     _Rect.h = h * PLAYER_SCALE;
     _Collider = Collider({_Rect.x + OFFSET, _Rect.y, _Rect.w - 2*OFFSET, _Rect.h});
     JumpDust.SetProp("Jump_Dust", 0, 5, 80);
+    delete prop;
 }
 
 void Player::Render(){

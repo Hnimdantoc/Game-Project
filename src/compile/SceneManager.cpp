@@ -22,8 +22,8 @@ void SceneManager::Render(){
 
 void SceneManager::ChangeScene(int ID){
     if (ID == MENU_SCENE) Menu* menu = new Menu();
-    else if (ID == PLAYSCENE) Scene_0* play_scene = new Scene_0();
     else if (ID == SELECT_SCENE) Select* selec_scene = new Select();
+    else if (ID == PLAYSCENE) Scene_0* play_scene = new Scene_0();
     TextureManager::GetInstance()->Transition();
     Clean();
     currentScene = ID;

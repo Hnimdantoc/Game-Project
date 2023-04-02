@@ -19,6 +19,7 @@ GameObject::GameObject(Properties* prop){
     _Rect.w = w;
     _Rect.h = h;
     _Collider = Collider(_Rect);
+    delete prop;
 }
 
 void GameObject::Update(float& dt){

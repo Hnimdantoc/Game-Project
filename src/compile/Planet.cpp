@@ -24,6 +24,7 @@ Planet::Planet(Properties* prop){
     _Rect.w = w * prop->scale;
     _Rect.h = h * prop->scale;
     _Collider = Collider(_Rect);
+    delete prop;
 }
 
 Planet::~Planet(){}

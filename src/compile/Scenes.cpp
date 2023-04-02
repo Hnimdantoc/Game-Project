@@ -7,17 +7,17 @@ Menu::Menu() : ID(MENU_SCENE) {
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 70);
     title = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
 
-    Play = TextureManager::GetInstance()->CreateTextureFromText(font, "PLAY", {255, 255, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {255, 255, 255});
     play_rect.x = 500;
     play_rect.y = 300;
     SDL_QueryTexture(Play, nullptr, nullptr, &play_rect.w, &play_rect.h);
-
-    Title = TextureManager::GetInstance()->CreateTextureFromText(font, "T1 < DEFT", {0, 255, 0});
+    
+    TextureManager::GetInstance()->CreateTextureFromText(&Title, font, "T1 < DEFT", {0, 255, 0});
     title_rect.x = 500;
     title_rect.y = 0;
     SDL_QueryTexture(Title, nullptr, nullptr, &title_rect.w, &title_rect.h);
 
-    Option = TextureManager::GetInstance()->CreateTextureFromText(font, "OPTION", {255, 255, 0});
+    TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "OPTION", {255, 255, 0});
     option_rect.x = 500;
     option_rect.y = 500;
     SDL_QueryTexture(Option, nullptr, nullptr, &option_rect.w, &option_rect.h);
@@ -53,10 +53,10 @@ Select::Select() : ID(SELECT_SCENE){
 
     skin_has_been_selected = false;
     minute_per_sun = 30;
-    fifteen = TextureManager::GetInstance()->CreateTextureFromText(font, "15", {0, 0, 0, 255});
-    thirty = TextureManager::GetInstance()->CreateTextureFromText(font, "30", {0, 0, 0, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&fifteen, font, "15", {0, 0, 0, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&thirty, font, "30", {0, 0, 0, 255});
     selected_minutes = thirty;
-    forty_five = TextureManager::GetInstance()->CreateTextureFromText(font, "45", {0, 0, 0, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&forty_five, font, "45", {0, 0, 0, 255});
 
     minute_box.x = 600;
     minute_box.y = 0;
@@ -70,6 +70,7 @@ Select::Select() : ID(SELECT_SCENE){
 }
 Select::~Select(){
     TTF_CloseFont(font);
+    SDL_DestroyTexture(selected_minutes);
     SDL_DestroyTexture(fifteen);
     SDL_DestroyTexture(thirty);
     SDL_DestroyTexture(forty_five);
@@ -111,7 +112,7 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     countMoon = DAYS;
     HOURS.first = 0;
     HOURS.second = 0;
-
+    
     freedom = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 100);
 }
 Scene_0::~Scene_0(){
@@ -144,10 +145,11 @@ void Scene_0::Update(float& dt){
 
 void Scene_0::Render(){
     TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
-    hours_texture = TextureManager::GetInstance()->CreateTextureFromText(freedom, _time.c_str(), {255, 0, 0, 150});
+    TextureManager::GetInstance()->CreateTextureFromText(&hours_texture, freedom, _time.c_str(), {255, 0, 0, 150});
     SDL_Rect hours_rect = {391, 185, 0 ,0};
     SDL_QueryTexture(hours_texture, nullptr, nullptr, &hours_rect.w, &hours_rect.h);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(),hours_texture, nullptr, &hours_rect);
+    SDL_DestroyTexture(hours_texture);
     RenderSamuraiMerchant();
     Rockstand_merchant_idle.Render(536, hover_platform->getCollider().GetBox().y-64, 128, 64);
     GameObjectHandler::GetInstance()->Render();

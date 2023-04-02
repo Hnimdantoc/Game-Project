@@ -19,6 +19,7 @@ Hover_platform::Hover_platform(Properties* prop){
     _Rect.w = w;
     _Rect.h = h;
     _Collider = Collider({_Rect.x, _Rect.y, 150, 20});
+    delete prop;
 }
 
 Hover_platform::~Hover_platform(){}

@@ -26,7 +26,7 @@ public:
     TTF_Font* LoadFont(const char* fontPath, int fontSize);
     inline SDL_Texture* GetTextureFromMap(const char* ID){return TextureMap[ID];} 
     inline std::map<std::string, SDL_Texture*> GetTextureMap(){return TextureMap;} 
-    SDL_Texture* CreateTextureFromText(TTF_Font* font, const char* text, const SDL_Color& color);
+    void CreateTextureFromText(SDL_Texture** text_texture, TTF_Font* font, const char* text, const SDL_Color& color);
 
     ~TextureManager();
     void Remove(const char* ID);

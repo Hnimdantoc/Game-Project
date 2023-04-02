@@ -53,13 +53,12 @@ TTF_Font* TextureManager::LoadFont(const char* fontPath, int fontSize){
     return font;
 }
 
-SDL_Texture* TextureManager::CreateTextureFromText(TTF_Font* font, const char* text, const SDL_Color& color){
+void TextureManager::CreateTextureFromText(SDL_Texture** text_texture, TTF_Font* font, const char* text, const SDL_Color& color){
     SDL_Surface* text_surface = TTF_RenderText_Solid(font, text, color);
-    if (text_surface == nullptr) std::cout << "Failed to create surface from font." << SDL_GetError() << std::endl;
-    SDL_Texture* text_texture = SDL_CreateTextureFromSurface(Engine::GetInstance()->GetRenderer(), text_surface);
-    if (text_texture == NULL) std::cout << "Failed to create texture from surface. " << SDL_GetError() << std::endl;
+    if (text_surface == nullptr) std::cout << "Failed to create surface from font." << SDL_GetError() << std::endl;    
+    *text_texture = SDL_CreateTextureFromSurface(Engine::GetInstance()->GetRenderer(), text_surface);
+    if (*text_texture == nullptr) std::cout << "Failed to create texture from surface. " << SDL_GetError() << std::endl;
     SDL_FreeSurface(text_surface);
-    return text_texture;
 }
 
 void TextureManager::Transition(bool intro){
