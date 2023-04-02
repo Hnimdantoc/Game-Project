@@ -86,8 +86,6 @@ void Player::Update(float& dt){
         }
         else if (playerState == STATE::JUMPING){
             SetPrevState();
-            JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
-            JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
         }
     }
     if (allowInput){
@@ -110,7 +108,27 @@ void Player::Update(float& dt){
         }
     }
     // Physics
-    _RigidBody->Update(dt);
+    if (!dashing) _RigidBody->Update(dt);
+    else {
+        Player::GetInstance()->GetRigidBody()->setPosition().y = Player::GetInstance()->GetRigidBody()->getVelocity().y * dt;
+        Player::GetInstance()->GetRigidBody()->setPosition().x = Player::GetInstance()->GetRigidBody()->getVelocity().x * dt;
+        Player::GetInstance()->GetRigidBody()->applyVelocityX(Player::GetInstance()->GetRigidBody()->getAcceleration().x * dt + Player::GetInstance()->GetRigidBody()->getVelocity().x);
+        Player::GetInstance()->DashTime() += dt;
+        Player::GetInstance()->DashLength() -= abs(Player::GetInstance()->GetRigidBody()->getPosition().x) + abs(Player::GetInstance()->GetRigidBody()->getPosition().y);
+        if (Player::GetInstance()->DashTime() >= 0.15 || Player::GetInstance()->DashLength() <= 0) {
+            Player::GetInstance()->CanDash() = true;
+            Player::GetInstance()->Dashing() = false;
+            Player::GetInstance()->SetAllowInput() = true;
+            Player::GetInstance()->GetRigidBody()->resetAccelerationX();
+            Player::GetInstance()->GetRigidBody()->resetVelocity();
+            Player::GetInstance()->GetRigidBody()->resetPosition();
+        }
+    }
+    
+    Player::GetInstance()->getTransform()->translateVector({_RigidBody->getPosition().x, _RigidBody->getPosition().y});
+    
+    // Update Collision box
+    Player::GetInstance()->UpdateCollider();
     CollisionHandler::GetInstance()->PlayerCollisions(_Collider);
     // Update the Animation
     _Animation->Update(dt);

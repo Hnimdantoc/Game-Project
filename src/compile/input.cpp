@@ -48,11 +48,8 @@ void Input::KeyUp(){
                 Player::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
                 Player::GetInstance()->SetState(STATE::STANDING_LEFT);
                 break;
-            case SDL_SCANCODE_ESCAPE:
-                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
-                break;
         }
-        if (Player::GetInstance()->GetPrevState() != Player::GetInstance()->GetState() && SceneManager::GetInstance()->GetCurrentSceneID() == PLAYSCENE) Player::GetInstance()->NeedChangeState() = true;
+        Player::GetInstance()->NeedChangeState() = true;
     }
     else if (SceneManager::GetInstance()->GetCurrentSceneID() == MENU_SCENE){
 
@@ -66,27 +63,31 @@ void Input::KeyDown(){
     KeyState = SDL_GetKeyboardState(NULL);
     
     if (SceneManager::GetInstance()->GetCurrentSceneID() == PLAYSCENE){
-        if (event.key.keysym.scancode == PLAYER_JUMP_SCANCODE && Player::GetInstance()->GetRemainJumps() > 0){
+        if (event.key.keysym.scancode == PLAYER_JUMP_SCANCODE && ((Player::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player::GetInstance()->lastJump >= 0)) || Player::GetInstance()->GetRemainJumps() == 1) && Player::GetInstance()->GetAllowInput() == true){
             if (Player::GetInstance()->GetRemainJumps() == 2) {
+                Player::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
+                Player::GetInstance()->lastJump = SDL_GetTicks();
                 Player::GetInstance()->j1_x = Player::GetInstance()->getTransform()->x+5;
                 Player::GetInstance()->j1_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
             }
             else {
+                Player::GetInstance()->JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
                 Player::GetInstance()->j2_x = Player::GetInstance()->getTransform()->x+5;
                 Player::GetInstance()->j2_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
             }
+            Player::GetInstance()->ReduceJumps();
             Player::GetInstance()->SetInAir() = true;
-            Player::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
             Player::GetInstance()->SetAllowInput() = false;
             Player::GetInstance()->SetPrevState();
-            Player::GetInstance()->ReduceJumps();
             Player::GetInstance()->SetState(STATE::JUMPING);
+            Player::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
         }
         if (event.key.keysym.scancode == PLAYER_DASH_SCANCODE && Player::GetInstance()->CanDash() && SDL_GetTicks() - Player::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
             Player::GetInstance()->Dashing() = true;
             Player::GetInstance()->CanDash() = false;
             Player::GetInstance()->DashLength() = 150;
             Player::GetInstance()->DashTime() = 0;
+            Player::GetInstance()->getTransform()->translateY(-1.0f);
             Player::GetInstance()->GetLastDash() = SDL_GetTicks();
             Player::GetInstance()->GetRigidBody()->resetAccelerationX();
             Player::GetInstance()->GetRigidBody()->resetVelocity();
@@ -96,7 +97,7 @@ void Input::KeyDown(){
             else if (Player::GetInstance()->GetState() == STATE::RUNNING_LEFT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
             else Player::GetInstance()->GetRigidBody()->applyVelocityY(DASH_VELLOCITY * UPWARD);
         }
-        
+        if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
         if (KeyState[PLAYER_GO_RIGHT_SCANCODE] && event.key.keysym.scancode == PLAYER_GO_LEFT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = true;
         if (KeyState[PLAYER_GO_LEFT_SCANCODE] && event.key.keysym.scancode == PLAYER_GO_RIGHT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = false;    
     }

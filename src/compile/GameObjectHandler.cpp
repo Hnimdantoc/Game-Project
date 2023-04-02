@@ -20,7 +20,7 @@ void GameObjectHandler::Render(){
 void GameObjectHandler::Clean(){
     for (std::set<GameObject*, custom_set>::iterator i = GameObjectMap[*ptr_current_scene].begin(); i != GameObjectMap[*ptr_current_scene].end(); i++) {
         (*i)->Clean();
-        GameObjectMap[*ptr_current_scene].erase(*i);
+        GameObjectMap[*ptr_current_scene].erase(i);
         delete *i;
     }
     GameObjectMap[*ptr_current_scene].clear();

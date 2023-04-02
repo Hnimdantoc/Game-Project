@@ -17,6 +17,8 @@ class Player : public GameObject
 {
 public:
     int j1_x, j1_y, j2_x, j2_y;
+    Uint32 lastJump;
+    Animation JumpDust1, JumpDust2;
 private:
     static Player* Static_Instance;
     int frameCount, jumps;
@@ -25,7 +27,6 @@ private:
     bool enableSmoothMovement, _NeedChangeState, allowInput;
     std::string _id;
     Uint32 lastDash;
-    Animation JumpDust1, JumpDust2;
     STATE playerState, prevState;
 public:
     static Player* GetInstance(){return Static_Instance;}
@@ -42,8 +43,10 @@ public:
     inline bool& NeedChangeState(){return _NeedChangeState;};
     inline bool& GetInAir(){return inAir;}
     inline bool& SetInAir(){return inAir;}
-    inline bool& GetAllowInput(){return allowInput;}
-    inline bool& SetAllowInput(){return allowInput;}
+    inline bool GetAllowInput(){return allowInput;}
+    inline bool& SetAllowInput(){
+        //std::cout << "SET HERE " << _RigidBody->getVelocity().y << std::endl;
+        return allowInput;}
     inline bool& GetSmoothMovement(){return enableSmoothMovement;}
     inline bool& SetSmoothMovement(){return enableSmoothMovement;}
     inline void UpdateCollider(){

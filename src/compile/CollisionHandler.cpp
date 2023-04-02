@@ -45,7 +45,7 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
                 }
             }
             else{
-                Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
+                //Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
             }
             (*i)->Clean();
             ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
