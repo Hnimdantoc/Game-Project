@@ -15,12 +15,23 @@ enum STATE {STANDING_RIGHT, STANDING_LEFT, RUNNING_LEFT, RUNNING_RIGHT, JUMPING}
 
 class Player : public GameObject
 {
+private:
+    static Player* Static_Instance;
+    int frameCount, jumps;
+    float dashTime, dashLength;
+    bool inAir, dashing, canDash;
+    bool enableSmoothMovement, _NeedChangeState, allowInput;
+    std::string _id;
+    Uint32 lastDash;
+    Animation JumpDust;
+    STATE playerState, prevState;
 public:
+    static Player* GetInstance(){return Static_Instance;}
+
     Player();
     Player(Properties* prop);
     ~Player();
 
-    static Player* GetInstance(){return Static_Instance;}
     
     inline STATE& GetState(){return playerState;}
     inline STATE& GetPrevState(){return prevState;}
@@ -46,27 +57,7 @@ public:
     inline float& DashLength(){return dashLength;}
     inline Uint32& GetLastDash(){return lastDash;}
 
-    /* Override if needed
-    inline Transform* getTransform(){return _Transform;}
-    inline SDL_Texture* getTexture(){return texture;}
-    inline SDL_Rect* getRect(){return &_Rect;}
-    inline RigidBody2D* GetRigidBody(){return _RigidBody;}
-    inline Transform* SetTransform(){return _Transform;}
-    */
-
     void Render();
     void Update(float& dt);
     void Clean();
-private:
-    std::string _id; 
-    static Player* Static_Instance;
-    Animation JumpDust;
-    int frameCount;
-    int jumps;
-    float dashTime, dashLength;
-    bool inAir, dashing, canDash;
-    bool allowInput;
-    bool enableSmoothMovement, _NeedChangeState;
-    STATE playerState, prevState;
-    Uint32 lastDash;
 };

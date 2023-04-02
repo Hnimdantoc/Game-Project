@@ -4,16 +4,15 @@
 #include "Collider.hpp"
 class CollisionHandler
 {
+private:
+    static CollisionHandler* StaticInstance;
 public:
+    inline static CollisionHandler* GetInstance(){return StaticInstance = (StaticInstance != nullptr) ? StaticInstance : new CollisionHandler();}
+    ~CollisionHandler();
+
     bool CheckCollision(Collider& _rectA, Collider& _rectB);
     bool GroundCollision(Collider& _rect);
-
-    inline static CollisionHandler* GetInstance(){return StaticInstance = (StaticInstance != nullptr) ? StaticInstance : new CollisionHandler();}
-
     void PlayerCollisions(Collider& _PlayerRect);
-    ~CollisionHandler();
 private:
     CollisionHandler();
-    
-    static CollisionHandler* StaticInstance;
 };

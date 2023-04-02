@@ -7,7 +7,9 @@
 CollisionHandler* CollisionHandler::StaticInstance = nullptr;
 
 CollisionHandler::CollisionHandler(){}
-CollisionHandler::~CollisionHandler(){}
+CollisionHandler::~CollisionHandler(){
+    SDL_Log("Collision Handler destroyed");
+}
 
 bool CollisionHandler::CheckCollision(Collider& _rectA, Collider& _rectB){
     //AABB method

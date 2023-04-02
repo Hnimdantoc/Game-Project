@@ -97,4 +97,5 @@ void Planet::Render(){
 
 void Planet::Clean(){
     delete _Transform;
+    delete _Animation;
 }

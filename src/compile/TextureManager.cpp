@@ -3,6 +3,9 @@
 #include "SceneManager.hpp"
 
 TextureManager::TextureManager(){}
+TextureManager::~TextureManager(){
+    SDL_Log("Texture Manager destroyed");
+}
 
 TextureManager* TextureManager::static_Instance = nullptr;
 

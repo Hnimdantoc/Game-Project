@@ -6,13 +6,16 @@
 
 class SceneManager
 {
+private:
+    static SceneManager* static_instance;
+    int currentScene;
+    std::map<int, Scene*> SceneMap;
 public:
-    ~SceneManager();
-
     static SceneManager* GetInstance(){return static_instance = (static_instance != nullptr) ? static_instance : new SceneManager();}
+    ~SceneManager();
     
-    inline int GetCurrentSceneID(){return currentScene;}
     void ChangeScene(int ID);
+    inline int GetCurrentSceneID(){return currentScene;}
     inline void addScene(int ID, Scene* _scene){SceneMap[ID] = _scene;}
 
     void Update(float& dt);
@@ -22,8 +25,4 @@ public:
     void CleanAllScene();
 private:
     SceneManager();
-
-    static SceneManager* static_instance;
-    std::map<int, Scene*> SceneMap;
-    int currentScene;
 };

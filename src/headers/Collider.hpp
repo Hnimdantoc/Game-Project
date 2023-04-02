@@ -6,6 +6,9 @@
 
 class Collider
 {
+private:
+    int x, y, w, h;
+    SDL_Rect box;
 public:
     Collider();
     Collider(SDL_Rect _Rect){box = _Rect;}
@@ -14,7 +17,4 @@ public:
     void Render();
     inline void UpdateBox(SDL_Rect& _Rect){box = _Rect;};
     inline SDL_Rect& GetBox(){return box;};
-private:
-    int x, y, w, h;
-    SDL_Rect box;
 };

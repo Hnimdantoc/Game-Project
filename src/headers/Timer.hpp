@@ -8,6 +8,10 @@
 
 class Timer
 {
+private:
+    static Timer* static_Instance;
+    int frameTime;
+    Uint32 frameStart;
 public:
     static Timer* getIntance(){return static_Instance = (static_Instance != nullptr ? static_Instance : new Timer());}
     inline float getDeltaTime(){return SECONDS_PER_FRAME;}
@@ -17,10 +21,7 @@ public:
     inline int GetDelay(){return (int)MILLISECONDS_PER_FRAME - frameTime;}
     inline int getFrameTime(){return frameTime;}
 
-    ~Timer(){}
+    ~Timer();
 private:
     Timer();
-    static Timer* static_Instance;
-    Uint32 frameStart;
-    int frameTime;
 };

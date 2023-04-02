@@ -9,7 +9,9 @@ Player* Player::Static_Instance = nullptr;
 Player::Player(){
     Static_Instance = this;
 }
-Player::~Player(){std::cout << "Player deleted" << std::endl;}
+Player::~Player(){
+    SDL_Log("Player destroyed");
+}
 
 Player::Player(Properties* prop){
     // Self reference

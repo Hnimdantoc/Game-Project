@@ -5,6 +5,7 @@ GameObjectHandler* GameObjectHandler::Static_Instance = nullptr;
 GameObjectHandler::GameObjectHandler(){}
 
 GameObjectHandler::~GameObjectHandler(){
+    SDL_Log("GameObject Handler destroyed");
     CleanAllGameObjects();
 }
 

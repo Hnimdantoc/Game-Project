@@ -5,6 +5,9 @@
 
 class Planet : public GameObject
 {
+private:
+    float speed = 2.0f;
+    Vector move;
 public:
     Planet();
     Planet(Properties* prop);
@@ -13,8 +16,7 @@ public:
     void Render();
     void Update(float& dt);
     void Clean();
-    float speed = 2.0f;
-    Vector move;
+    
     std::vector<Vector> dir = 
     {
         {(float)-sqrt(2) * speed, (float)sqrt(2) * speed},

@@ -23,9 +23,19 @@
 
 class RigidBody2D
 {
+
+private:
+    float _mass, _gravity;
+    Vector _force;
+    Vector _friction;
+    Vector _position;
+    Vector _velocity;
+    Vector _acceleration;
 public:
     RigidBody2D();
     ~RigidBody2D();
+    void Update(float dt);
+
     inline void setMass(float mass){_mass = mass;}
     inline void setGravity(float gravity){_gravity = gravity;}
     inline Vector& setPosition(){return _position;}
@@ -52,15 +62,4 @@ public:
     inline Vector getPosition(){return _position;};
     inline Vector getVelocity(){return _velocity;};
     inline Vector getAcceleration(){return _acceleration;};
-
-    void Update(float dt);
-
-private:
-    float _mass, _gravity;
-
-    Vector _force;
-    Vector _friction;
-    Vector _position;
-    Vector _velocity;
-    Vector _acceleration;
 };

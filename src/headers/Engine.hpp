@@ -30,33 +30,30 @@ enum GAME_STATE {PLAYING, EXIT};
 
 class Engine
 {
+private:
+    static Engine* static_Instance;
+    SDL_Rect _Ground;
+    SDL_Surface* icon;    
+    SDL_Window* window;
+    SDL_Renderer* renderer;
+    GAME_STATE _gameState = GAME_STATE::PLAYING;
 public:
     static Engine* GetInstance(){return static_Instance = (static_Instance != nullptr) ? static_Instance : new Engine();}
     
     void init(const char* title, int x, int y, int w, int h, Uint32 flags);
-    void Quit();
 
+    inline SDL_Rect GetGround(){return _Ground;}
+    inline SDL_Renderer* GetRenderer(){return renderer;}
     inline GAME_STATE getGameState(){return _gameState;}
     inline GAME_STATE& setGameState(){return _gameState;}
-    inline SDL_Renderer* GetRenderer(){return renderer;}
-    inline SDL_Rect GetGround(){return _Ground;}
 
     void Events();
     void Update(float dt);
     void Render();    
+    void Quit();
+    ~Engine();
 private:
     Engine();
-    ~Engine();
-
-    static Engine* static_Instance;
-
-    GAME_STATE _gameState = GAME_STATE::PLAYING;
-
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    SDL_Surface* icon;
-    
-    SDL_Rect _Ground;
 };
 
 

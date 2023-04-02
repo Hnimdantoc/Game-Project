@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
     }
     
     Engine::GetInstance()->Quit();
+    delete Engine::GetInstance();
 
     return 0;
 }

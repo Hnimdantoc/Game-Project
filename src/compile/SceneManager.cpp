@@ -8,7 +8,10 @@ SceneManager::SceneManager(){
     GameObjectHandler::GetInstance()->ptr_current_scene = &currentScene;
 }
 
-SceneManager::~SceneManager(){}
+SceneManager::~SceneManager(){
+    CleanAllScene();
+    SDL_Log("Scene Manager destroyed");
+}
 
 void SceneManager::Update(float& dt){
     SceneMap[currentScene]->Update(dt);

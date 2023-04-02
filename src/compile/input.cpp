@@ -10,7 +10,9 @@ Input::Input(){
     KeyState = SDL_GetKeyboardState(NULL);
 }   
 
-Input::~Input(){}
+Input::~Input(){
+    SDL_Log("Input Handler destroyed");
+}
 
 void Input::Listen(){    
     while(SDL_PollEvent(&event)){
@@ -100,7 +102,7 @@ void Input::KeyDown(){
                 Menu::GetInstance()->currentRect = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i][Menu::GetInstance()->j];
                 break;
             case SDL_SCANCODE_RETURN:
-                if (Menu::GetInstance()->currentRect == &Menu::GetInstance()->play_rect) SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
+                if (Menu::GetInstance()->currentRect == (Menu::GetInstance()->GetVectorRect())[0][0]) SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
                 break;
         }
     }

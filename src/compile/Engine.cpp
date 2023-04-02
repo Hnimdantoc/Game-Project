@@ -2,12 +2,15 @@
 #include "TextureManager.hpp"
 #include "Timer.hpp"
 #include "Scenes.hpp"
+#include "CollisionHandler.hpp"
+
+Engine* Engine::static_Instance = nullptr;
 
 Engine::Engine():window(NULL), renderer(NULL){};
 
-Engine::~Engine(){}
-
-Engine* Engine::static_Instance = nullptr;
+Engine::~Engine(){
+    SDL_Log("Engine destroyed");
+}
 
 void Engine::init(const char* title, int x, int y, int w, int h, Uint32 flags){
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -39,12 +42,13 @@ void Engine::init(const char* title, int x, int y, int w, int h, Uint32 flags){
 }
 
 void Engine::Quit(){
-    Timer::getIntance()->~Timer();
-    SDL_Log("Timer deleted");
-    SceneManager::GetInstance()->CleanAllScene();
-    SDL_Log("All scenes deleted");
+    delete Timer::getIntance();
+    delete Input::GetInstance();
+    delete SceneManager::GetInstance();
+    delete TextureManager::GetInstance();
+    delete CollisionHandler::GetInstance();
+    delete GameObjectHandler::GetInstance();
     SDL_DestroyWindow(window);
-    SDL_Log("Destroyed window");
     TTF_Quit();
     SDL_Quit();
 }
