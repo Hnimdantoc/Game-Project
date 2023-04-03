@@ -24,13 +24,16 @@ private:
     SDL_Texture* Play;
     SDL_Texture* Title;
     SDL_Texture* Option;
-    SDL_Rect play_rect, option_rect, title_rect;
+    SDL_Texture* Exit;
+    SDL_Rect play_rect, option_rect, title_rect, exit_rect;
     std::vector <std::vector<SDL_Rect*>> vectorRect;
 public:
     Menu();
     ~Menu();
     void Update(float& dt);
     void Render();
+    void KeyDown(SDL_Scancode scancode);
+    void KeyUp(SDL_Scancode scancode);
 };
 
 class Select : Scene
@@ -57,6 +60,8 @@ public:
     ~Select();
     void Update(float& dt);
     void Render();
+    void KeyDown(SDL_Scancode scancode);
+    void KeyUp(SDL_Scancode scancode);
 };
 
 class Scene_0 : public Scene
@@ -86,6 +91,8 @@ public:
     ~Scene_0();
     void Update(float& dt);
     void Render();
+    void KeyDown(SDL_Scancode scancode);
+    void KeyUp(SDL_Scancode scancode);
     void UpdateIdle(float dt);
     void RenderSamuraiMerchant();
 };

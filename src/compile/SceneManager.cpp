@@ -13,6 +13,14 @@ SceneManager::~SceneManager(){
     SDL_Log("Scene Manager destroyed");
 }
 
+void SceneManager::KeyDown(SDL_Scancode scancode){
+    SceneMap[currentScene]->KeyDown(scancode);
+}
+
+void SceneManager::KeyUp(SDL_Scancode scancode){
+    SceneMap[currentScene]->KeyUp(scancode);
+}
+
 void SceneManager::Update(float& dt){
     SceneMap[currentScene]->Update(dt);
 }

@@ -18,6 +18,9 @@ public:
     inline int GetCurrentSceneID(){return currentScene;}
     inline void addScene(int ID, Scene* _scene){SceneMap[ID] = _scene;}
 
+    void KeyDown(SDL_Scancode scancode);
+    void KeyUp(SDL_Scancode scancode);
+
     void Update(float& dt);
     void Render();
     void Clean();

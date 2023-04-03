@@ -7,42 +7,66 @@ Menu::Menu() : ID(MENU_SCENE) {
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 70);
     title = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
 
-    TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {255, 255, 255});
-    play_rect.x = 500;
-    play_rect.y = 300;
-    SDL_QueryTexture(Play, nullptr, nullptr, &play_rect.w, &play_rect.h);
-    
     TextureManager::GetInstance()->CreateTextureFromText(&Title, font, "T1 < DEFT", {0, 255, 0});
-    title_rect.x = 500;
-    title_rect.y = 0;
-    SDL_QueryTexture(Title, nullptr, nullptr, &title_rect.w, &title_rect.h);
+    MakeRectFromTexture(&Title, &title_rect, 500, 0);
+    
+    TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {255, 255, 255});
+    MakeRectFromTexture(&Play, &play_rect, 500, 250);
 
     TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "OPTION", {255, 255, 0});
-    option_rect.x = 500;
-    option_rect.y = 500;
-    SDL_QueryTexture(Option, nullptr, nullptr, &option_rect.w, &option_rect.h);
+    MakeRectFromTexture(&Option, &option_rect, 500, 350);
+
+    TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "EXIT", {255, 255, 0});
+    MakeRectFromTexture(&Exit, &exit_rect, 500, 500);
 
     currentRect = &play_rect;
-    vectorRect.push_back({&play_rect, &option_rect});
+    vectorRect.push_back({&play_rect, &option_rect, &exit_rect});
 }
 Menu::~Menu(){
     TTF_CloseFont(font);
     TTF_CloseFont(title);
+    SDL_DestroyTexture(Title);
     SDL_DestroyTexture(Play);
     SDL_DestroyTexture(Option);
-    SDL_DestroyTexture(Title);
+    SDL_DestroyTexture(Exit);
 }
 void Menu::Update(float& dt){
     GameObjectHandler::GetInstance()->Update(dt);
 }
 void Menu::Render(){
     TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Title, nullptr, &title_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Play, nullptr, &play_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Option, nullptr, &option_rect);
-    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Title, nullptr, &title_rect);
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Exit, nullptr, &exit_rect);
     SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
 }
 
+void Menu::KeyDown(SDL_Scancode scancode){
+    switch(scancode){
+        case SDL_SCANCODE_DOWN:
+            Menu::GetInstance()->j++;
+            if (Menu::GetInstance()->j == Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i].size()) Menu::GetInstance()->j = 0;
+            Menu::GetInstance()->currentRect = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i][Menu::GetInstance()->j];
+            break;
+        case SDL_SCANCODE_UP:
+            Menu::GetInstance()->j--;
+            if (Menu::GetInstance()->j < 0) Menu::GetInstance()->j = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i].size()-1;
+            Menu::GetInstance()->currentRect = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i][Menu::GetInstance()->j];
+            break;
+        case SDL_SCANCODE_RETURN:
+            if (Menu::GetInstance()->currentRect == &play_rect) SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
+            else if (Menu::GetInstance()->currentRect == &exit_rect) {
+                Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
+                return;
+            }
+            break;
+    }
+}
+
+void Menu::KeyUp(SDL_Scancode scancode){
+
+}
 /********************************************************************************/
 Select* Select::static_instance = nullptr;
 Select::Select() : ID(SELECT_SCENE){
@@ -92,6 +116,58 @@ void Select::Render(){
         }
     }
 
+void Select::KeyDown(SDL_Scancode scancode){
+    if (Select::GetInstance()->skin_has_been_selected == false){
+        switch (scancode){
+            case SDL_SCANCODE_LEFT:
+                Select::GetInstance()->Skins_iterator--;
+                if (Select::GetInstance()->Skins_iterator < 0) Select::GetInstance()->Skins_iterator = Select::GetInstance()->vectorSkins.size()-1;
+                Select::GetInstance()->selected_skin = Select::GetInstance()->vectorSkins[Select::GetInstance()->Skins_iterator];
+                break;
+            case SDL_SCANCODE_RIGHT:
+                Select::GetInstance()->Skins_iterator++;
+                if (Select::GetInstance()->Skins_iterator == Select::GetInstance()->vectorSkins.size()) Select::GetInstance()->Skins_iterator = 0;
+                Select::GetInstance()->selected_skin = Select::GetInstance()->vectorSkins[Select::GetInstance()->Skins_iterator];
+                break;
+            case SDL_SCANCODE_RETURN:
+                Select::GetInstance()->skin_has_been_selected = true;
+                break;
+            case SDL_SCANCODE_ESCAPE:
+                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                return;
+                break;
+        }
+    }
+    else {
+        switch (scancode){
+            case SDL_SCANCODE_LEFT:
+                Select::GetInstance()->Minute_iterator--;
+                Select::GetInstance()->minute_per_sun-=15;
+                if (Select::GetInstance()->Minute_iterator < 0) Select::GetInstance()->Minute_iterator = Select::GetInstance()->vectorMinute.size()-1;
+                if (Select::GetInstance()->minute_per_sun == 0) Select::GetInstance()->minute_per_sun = 45;
+                Select::GetInstance()->selected_minutes = Select::GetInstance()->vectorMinute[Select::GetInstance()->Minute_iterator];
+                break;
+            case SDL_SCANCODE_RIGHT:
+                Select::GetInstance()->Minute_iterator++;
+                Select::GetInstance()->minute_per_sun += 15;
+                if (Select::GetInstance()->Minute_iterator == Select::GetInstance()->vectorMinute.size()) Select::GetInstance()->Minute_iterator = 0;
+                if (Select::GetInstance()->minute_per_sun == 60) Select::GetInstance()->minute_per_sun = 0;
+                Select::GetInstance()->selected_minutes = Select::GetInstance()->vectorMinute[Select::GetInstance()->Minute_iterator];
+                break;
+            case SDL_SCANCODE_RETURN:
+                SceneManager::GetInstance()->ChangeScene(PLAYSCENE);
+                break;
+            case SDL_SCANCODE_ESCAPE:
+                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                return;
+                break;
+        }
+    }
+}
+
+void Select::KeyUp(SDL_Scancode scancode){
+
+}
 /********************************************************************************/
 Scene_0* Scene_0::static_instance = nullptr;
 Scene_0::Scene_0() : ID(PLAYSCENE) {
@@ -183,4 +259,67 @@ void Scene_0::RenderSamuraiMerchant(){
     if (samurai_x <= 1095 && samurai_x >= 210) samurai_merchant_idle.Render(samurai_x, 625, 78, 50);
     else if (samurai_x > 1095) samurai_merchant_idle.Render(1095, 625, 78, 50);
     else if (samurai_x < 210) samurai_merchant_idle.Render(210, 625, 78, 50);
+}
+
+void Scene_0::KeyDown(SDL_Scancode scancode){
+    if (scancode == PLAYER_JUMP_SCANCODE && ((Player::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player::GetInstance()->lastJump >= 0)) || Player::GetInstance()->GetRemainJumps() == 1)/* && Player::GetInstance()->GetAllowInput() == true*/){
+        if (Player::GetInstance()->GetRemainJumps() == 2) {
+            Player::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
+            Player::GetInstance()->lastJump = SDL_GetTicks();
+            Player::GetInstance()->j1_x = Player::GetInstance()->getTransform()->x+5;
+            Player::GetInstance()->j1_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
+        }
+        else {
+            Player::GetInstance()->JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
+            Player::GetInstance()->j2_x = Player::GetInstance()->getTransform()->x+5;
+            Player::GetInstance()->j2_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
+        }
+        Player::GetInstance()->ReduceJumps();
+        Player::GetInstance()->SetInAir() = true;
+        Player::GetInstance()->SetAllowInput() = false;
+        Player::GetInstance()->SetPrevState();
+        Player::GetInstance()->SetState(STATE::JUMPING, Player::GetInstance()->GetState().second);
+        Player::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
+    }
+    if (scancode == PLAYER_DASH_SCANCODE && Player::GetInstance()->CanDash() && SDL_GetTicks() - Player::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
+        Player::GetInstance()->Dashing() = true;
+        Player::GetInstance()->CanDash() = false;
+        Player::GetInstance()->DashLength() = 150;
+        Player::GetInstance()->DashTime() = 0;
+        Player::GetInstance()->getTransform()->translateY(-1.0f);
+        Player::GetInstance()->GetLastDash() = SDL_GetTicks();
+        Player::GetInstance()->GetRigidBody()->resetAccelerationX();
+        Player::GetInstance()->GetRigidBody()->resetVelocity();
+        Player::GetInstance()->GetRigidBody()->resetPosition();
+        Player::GetInstance()->SetAllowInput() = false;
+        if (Player::GetInstance()->GetState().second == FACE::RIGHT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * FORWARD);
+        else if (Player::GetInstance()->GetState().second == FACE::LEFT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
+    }
+    if (scancode == SDL_SCANCODE_ESCAPE) {
+        SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+        return;
+    }
+    if (Input::GetInstance()->GetKeyState()[PLAYER_GO_RIGHT_SCANCODE] && scancode == PLAYER_GO_LEFT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = true;
+    if (Input::GetInstance()->GetKeyState()[PLAYER_GO_LEFT_SCANCODE] && scancode == PLAYER_GO_RIGHT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = false;
+}
+
+void Scene_0::KeyUp(SDL_Scancode scancode){
+    switch (scancode){
+        case PLAYER_GO_RIGHT_SCANCODE:
+            Player::GetInstance()->SetPrevState();
+            Player::GetInstance()->NeedChangeState() = true;
+            Player::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
+            Player::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
+            break;
+        case PLAYER_GO_LEFT_SCANCODE:
+            Player::GetInstance()->SetPrevState();
+            Player::GetInstance()->NeedChangeState() = true;
+            Player::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
+            Player::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
+            break;
+        case PLAYER_JUMP_SCANCODE:
+            Player::GetInstance()->SetPrevState();
+            Player::GetInstance()->NeedChangeState() = true;
+            break;
+    }
 }
