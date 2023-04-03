@@ -35,8 +35,9 @@ Player::Player(Properties* prop){
     --------------change this-----\/---------------------------------------------------*/
     frameCount = prop->frameCount;
     _Animation->SetProp(ID, 0, frameCount, 150);
-    playerState = STATE::STANDING_RIGHT;
-    prevState = playerState;
+    playerAction.first = STATE::STANDING;
+    playerAction.second = FACE::RIGHT;
+    SetPrevState();
     inAir = true;
     allowInput = true;
     _NeedChangeState = false;
@@ -65,46 +66,39 @@ void Player::Render(){
 }
 
 void Player::Update(float& dt){
-    if (prevState != playerState) _NeedChangeState = true;
+    if (prevAction != playerAction) _NeedChangeState = true;
     if (_NeedChangeState){
         _NeedChangeState = false;
-        if (playerState == STATE::STANDING_RIGHT){
-            _Animation->SetProp(ID, 0, frameCount, 150);
-            SetPrevState();
+        switch (playerAction.first){
+            case STATE::STANDING:
+                _Animation->SetProp(ID, 0, frameCount, 150);
+                break;
+            case STATE::RUNNING:
+                _Animation->SetProp(ID, 1, frameCount, 80);
+                break;
+            case STATE::JUMPING:
+                break;
         }
-        else if (playerState == STATE::STANDING_LEFT){
-            _Animation->SetProp(ID, 0, frameCount, 150, SDL_FLIP_HORIZONTAL);
-            SetPrevState();
-        }
-        else if (playerState == STATE::RUNNING_LEFT){
-            _Animation->SetProp(ID, 1, frameCount, 80, SDL_FLIP_HORIZONTAL);
-            SetPrevState();
-        }
-        else if (playerState == STATE::RUNNING_RIGHT){
-            _Animation->SetProp(ID, 1, frameCount, 80);
-            SetPrevState();
-        }
-        else if (playerState == STATE::JUMPING){
-            SetPrevState();
-        }
+        if (playerAction.second == FACE::LEFT) _Animation->SetFlip(SDL_FLIP_HORIZONTAL);
+        SetPrevState();
     }
     if (allowInput){
         if (Input::GetInstance()->GetKeyDown(PLAYER_GO_RIGHT_SCANCODE)){
             if (Input::GetInstance()->GetKeyDown(PLAYER_GO_LEFT_SCANCODE) && enableSmoothMovement){
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
                 SetPrevState();
-                SetState(STATE::RUNNING_LEFT);
+                SetState(STATE::RUNNING, FACE::LEFT);
             }
             else{
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * FORWARD);
                 SetPrevState();
-                SetState(STATE::RUNNING_RIGHT);
+                SetState(STATE::RUNNING, FACE::RIGHT);
             }
         }
         else if (Input::GetInstance()->GetKeyDown(PLAYER_GO_LEFT_SCANCODE)){
             _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
             SetPrevState();
-            SetState(STATE::RUNNING_LEFT);
+            SetState(STATE::RUNNING, FACE::LEFT);
         }
     }
     // Physics

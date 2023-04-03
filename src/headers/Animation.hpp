@@ -19,7 +19,7 @@ public:
     void Update(float& dt);
     void Render(float x, float y, int w, int h, float SCALE = 1.0f);
     void SetProp(const char* _ID, int _spriteRow, int _frameCount, int _animateSpeed, SDL_RendererFlip _flip = SDL_FLIP_NONE);
-
+    inline void SetFlip(SDL_RendererFlip _flip){flip = _flip;}
     inline void ChangeAnimationState(bool _state){changeAnimation = _state;}
     inline bool GetAnimationChangeState(){return changeAnimation;}
     inline int GetPrevFrame(){return prevFrame;}

@@ -3,6 +3,7 @@
 #include "GameObject.hpp"
 #include "TextureManager.hpp"
 #include "input.hpp"
+#include <utility>
 
 #define DASH_VELLOCITY 2000
 #define DASH_COOL_DOWN 4000
@@ -11,7 +12,8 @@
 #define PLAYER_JUMP_SCANCODE SDL_SCANCODE_UP
 #define PLAYER_DASH_SCANCODE SDL_SCANCODE_SPACE
 
-enum STATE {STANDING_RIGHT, STANDING_LEFT, RUNNING_LEFT, RUNNING_RIGHT, JUMPING};
+enum STATE {STANDING, RUNNING, JUMPING};
+enum FACE {LEFT, RIGHT};
 
 class Player : public GameObject
 {
@@ -27,7 +29,7 @@ private:
     bool enableSmoothMovement, _NeedChangeState, allowInput;
     std::string _id;
     Uint32 lastDash;
-    STATE playerState, prevState;
+    std::pair <STATE, FACE> playerAction, prevAction;
 public:
     static Player* GetInstance(){return Static_Instance;}
 
@@ -36,10 +38,11 @@ public:
     ~Player();
 
     
-    inline STATE& GetState(){return playerState;}
-    inline STATE& GetPrevState(){return prevState;}
-    inline void SetState(STATE _state){playerState = _state;}
-    inline void SetPrevState(){prevState = playerState;}
+    inline std::pair <STATE, FACE>& GetState(){return playerAction;}
+    inline std::pair <STATE, FACE>& GetPrevState(){return prevAction;}
+    inline void SetState(STATE state, FACE face){playerAction.first = state;
+                                                 playerAction.second = face;}
+    inline void SetPrevState(){prevAction = playerAction;}
     inline bool& NeedChangeState(){return _NeedChangeState;};
     inline bool& GetInAir(){return inAir;}
     inline bool& SetInAir(){return inAir;}

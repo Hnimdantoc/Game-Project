@@ -36,20 +36,25 @@ bool Input::GetKeyDown(SDL_Scancode key_scan_code){
 
 void Input::KeyUp(){
     KeyState = SDL_GetKeyboardState(NULL);
-    
     if (SceneManager::GetInstance()->GetCurrentSceneID() == PLAYSCENE){
-        Player::GetInstance()->SetPrevState();
         switch (event.key.keysym.scancode){
             case PLAYER_GO_RIGHT_SCANCODE:
+                Player::GetInstance()->SetPrevState();
+                Player::GetInstance()->NeedChangeState() = true;
                 Player::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
-                Player::GetInstance()->SetState(STATE::STANDING_RIGHT);
+                Player::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
                 break;
             case PLAYER_GO_LEFT_SCANCODE:
+                Player::GetInstance()->SetPrevState();
+                Player::GetInstance()->NeedChangeState() = true;
                 Player::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
-                Player::GetInstance()->SetState(STATE::STANDING_LEFT);
+                Player::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
+                break;
+            case PLAYER_JUMP_SCANCODE:
+                Player::GetInstance()->SetPrevState();
+                Player::GetInstance()->NeedChangeState() = true;
                 break;
         }
-        Player::GetInstance()->NeedChangeState() = true;
     }
     else if (SceneManager::GetInstance()->GetCurrentSceneID() == MENU_SCENE){
 
@@ -79,7 +84,7 @@ void Input::KeyDown(){
             Player::GetInstance()->SetInAir() = true;
             Player::GetInstance()->SetAllowInput() = false;
             Player::GetInstance()->SetPrevState();
-            Player::GetInstance()->SetState(STATE::JUMPING);
+            Player::GetInstance()->SetState(STATE::JUMPING, Player::GetInstance()->GetState().second);
             Player::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
         }
         if (event.key.keysym.scancode == PLAYER_DASH_SCANCODE && Player::GetInstance()->CanDash() && SDL_GetTicks() - Player::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
@@ -93,9 +98,8 @@ void Input::KeyDown(){
             Player::GetInstance()->GetRigidBody()->resetVelocity();
             Player::GetInstance()->GetRigidBody()->resetPosition();
             Player::GetInstance()->SetAllowInput() = false;
-            if (Player::GetInstance()->GetState() == STATE::RUNNING_RIGHT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * FORWARD);
-            else if (Player::GetInstance()->GetState() == STATE::RUNNING_LEFT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
-            else Player::GetInstance()->GetRigidBody()->applyVelocityY(DASH_VELLOCITY * UPWARD);
+            if (Player::GetInstance()->GetState().second == FACE::RIGHT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * FORWARD);
+            else if (Player::GetInstance()->GetState().second == FACE::LEFT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
         }
         if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
         if (KeyState[PLAYER_GO_RIGHT_SCANCODE] && event.key.keysym.scancode == PLAYER_GO_LEFT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = true;
