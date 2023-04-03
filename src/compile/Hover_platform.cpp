@@ -25,7 +25,7 @@ Hover_platform::Hover_platform(Properties* prop){
 Hover_platform::~Hover_platform(){}
 
 void Hover_platform::Update(float& dt){
-    if (_Transform->y >= 600) GO = -1;
+    if (_Transform->y >= 580) GO = -1;
     else if (_Transform->y <= 125) GO = 1;
     _Transform->translateY(1.0f * GO);
     UpdateCollider();

@@ -120,7 +120,6 @@ void Player::Update(float& dt){
     }
     
     Player::GetInstance()->getTransform()->translateVector({_RigidBody->getPosition().x, _RigidBody->getPosition().y});
-    
     // Update Collision box
     Player::GetInstance()->UpdateCollider();
     CollisionHandler::GetInstance()->PlayerCollisions(_Collider);

@@ -83,6 +83,7 @@ private:
     GameObject* Left_platform;
     GameObject* Right_platform;
     SDL_Texture* hours_texture;  
+    SDL_Texture* days_texture;  
     Hover_platform* hover_platform;
     Animation samurai_merchant_idle;
     Animation Rockstand_merchant_idle;

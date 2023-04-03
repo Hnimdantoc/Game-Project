@@ -221,11 +221,26 @@ void Scene_0::Update(float& dt){
 
 void Scene_0::Render(){
     TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
+    
     TextureManager::GetInstance()->CreateTextureFromText(&hours_texture, freedom, _time.c_str(), {255, 0, 0, 150});
+    std::string days = "Day:";
+    TextureManager::GetInstance()->CreateTextureFromText(&days_texture, freedom, days.c_str(), {255, 150, 0, 150});
     SDL_Rect hours_rect = {391, 185, 0 ,0};
+    SDL_Rect days_rect = {391, 0, 0 ,0};
     SDL_QueryTexture(hours_texture, nullptr, nullptr, &hours_rect.w, &hours_rect.h);
+    SDL_QueryTexture(days_texture, nullptr, nullptr, &days_rect.w, &days_rect.h);
+    //days_rect.x = hours_rect.x + (hours_rect.w - days_rect.w)/2;
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(),hours_texture, nullptr, &hours_rect);
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(),days_texture, nullptr, &days_rect);
+    SDL_DestroyTexture(days_texture);
+    days = std::to_string(DAYS);
+    days_rect.x = days_rect.w + days_rect.x + 30;
+    TextureManager::GetInstance()->CreateTextureFromText(&days_texture, freedom, days.c_str(), {255, 150, 0, 150});
+    SDL_QueryTexture(days_texture, nullptr, nullptr, &days_rect.w, &days_rect.h);
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(),days_texture, nullptr, &days_rect);
+    SDL_DestroyTexture(days_texture);
     SDL_DestroyTexture(hours_texture);
+
     RenderSamuraiMerchant();
     Rockstand_merchant_idle.Render(536, hover_platform->getCollider().GetBox().y-64, 128, 64);
     GameObjectHandler::GetInstance()->Render();

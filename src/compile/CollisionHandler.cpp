@@ -46,7 +46,7 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
             }
             else{
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
-                break;
+                return;
             }
             (*i)->Clean();
             ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
