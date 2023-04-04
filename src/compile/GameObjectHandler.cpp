@@ -10,7 +10,11 @@ GameObjectHandler::~GameObjectHandler(){
 }
 
 void GameObjectHandler::Update(float& dt){
-    for (GameObject* i : GameObjectMap[*ptr_current_scene]) i->Update(dt);
+    for (GameObject* i : GameObjectMap[*ptr_current_scene]) {
+        int prevScene = *ptr_current_scene;
+        i->Update(dt);
+        if (prevScene != *ptr_current_scene) break;
+    }
 }
 
 void GameObjectHandler::Render(){
@@ -20,8 +24,8 @@ void GameObjectHandler::Render(){
 void GameObjectHandler::Clean(){
     for (std::set<GameObject*, custom_set>::iterator i = GameObjectMap[*ptr_current_scene].begin(); i != GameObjectMap[*ptr_current_scene].end(); i++) {
         (*i)->Clean();
-        GameObjectMap[*ptr_current_scene].erase(i);
         delete *i;
+        GameObjectMap[*ptr_current_scene].erase(i);
     }
     GameObjectMap[*ptr_current_scene].clear();
 }

@@ -1,6 +1,7 @@
 #include "RigidBody2D.hpp"
 #include "SDL2/SDL.h"
 #include "Player.hpp"
+#include "Player1.hpp"
 
 
 RigidBody2D::RigidBody2D(){
@@ -27,6 +28,7 @@ void RigidBody2D::Update(float dt){
     _position.y = _velocity.y * dt + 0.5f * _acceleration.y * dt * dt;
     // Allow player's input after certain velocity threshold
     if (Player::GetInstance()->GetRigidBody()->getVelocity().y >= -0.25f*JUMP_VELOCITY && Player::GetInstance()->GetInAir()) Player::GetInstance()->SetAllowInput() = true;
+    if (Player1::GetInstance()->GetRigidBody()->getVelocity().y >= -0.25f*JUMP_VELOCITY && Player1::GetInstance()->GetInAir()) Player1::GetInstance()->SetAllowInput() = true;
     /*----------------------------------Movemen in x axis----------------------------------*/
     // Deccelerator
     if (_acceleration.x == DECCELERATE_TO_ZERO * BACKWARD && _velocity.x <= 0) resetAccelerationX();

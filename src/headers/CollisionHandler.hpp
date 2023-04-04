@@ -13,6 +13,7 @@ public:
     bool CheckCollision(Collider& _rectA, Collider& _rectB);
     bool GroundCollision(Collider& _rect);
     void PlayerCollisions(Collider& _PlayerRect);
+    void Player1Collisions(Collider& _PlayerRect);
 private:
     CollisionHandler();
 };

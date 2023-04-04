@@ -91,6 +91,7 @@ Select::Select() : ID(SELECT_SCENE){
     vectorMinute.push_back(forty_five);
     vectorSkins.push_back("player");
     vectorSkins.push_back("player1");
+    vectorSkins.push_back("player2");
 }
 Select::~Select(){
     TTF_CloseFont(font);
@@ -179,6 +180,7 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     Right_platform = new GameObject(new Properties("Right_platform", 830, 506, 370, 40, ID, 1));
 
     player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
+    player1 = new Player1(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
 
     Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
@@ -221,7 +223,7 @@ void Scene_0::Update(float& dt){
 
 void Scene_0::Render(){
     TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
-    
+    /*---------------Draw days and hours-----------------------------------*/
     TextureManager::GetInstance()->CreateTextureFromText(&hours_texture, freedom, _time.c_str(), {255, 0, 0, 150});
     std::string days = "Day:";
     TextureManager::GetInstance()->CreateTextureFromText(&days_texture, freedom, days.c_str(), {255, 150, 0, 150});
@@ -229,7 +231,6 @@ void Scene_0::Render(){
     SDL_Rect days_rect = {391, 0, 0 ,0};
     SDL_QueryTexture(hours_texture, nullptr, nullptr, &hours_rect.w, &hours_rect.h);
     SDL_QueryTexture(days_texture, nullptr, nullptr, &days_rect.w, &days_rect.h);
-    //days_rect.x = hours_rect.x + (hours_rect.w - days_rect.w)/2;
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(),hours_texture, nullptr, &hours_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(),days_texture, nullptr, &days_rect);
     SDL_DestroyTexture(days_texture);
@@ -240,7 +241,7 @@ void Scene_0::Render(){
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(),days_texture, nullptr, &days_rect);
     SDL_DestroyTexture(days_texture);
     SDL_DestroyTexture(hours_texture);
-
+    /*-------------------------------------------------------------*/
     RenderSamuraiMerchant();
     Rockstand_merchant_idle.Render(536, hover_platform->getCollider().GetBox().y-64, 128, 64);
     GameObjectHandler::GetInstance()->Render();
@@ -316,6 +317,46 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
     }
     if (Input::GetInstance()->GetKeyState()[PLAYER_GO_RIGHT_SCANCODE] && scancode == PLAYER_GO_LEFT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = true;
     if (Input::GetInstance()->GetKeyState()[PLAYER_GO_LEFT_SCANCODE] && scancode == PLAYER_GO_RIGHT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = false;
+    //////////////////////////////////////////
+    if (scancode == PLAYER1_JUMP_SCANCODE && ((Player1::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player1::GetInstance()->lastJump >= 0)) || Player1::GetInstance()->GetRemainJumps() == 1)/* && Player1::GetInstance()->GetAllowInput() == true*/){
+        if (Player1::GetInstance()->GetRemainJumps() == 2) {
+            Player1::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
+            Player1::GetInstance()->lastJump = SDL_GetTicks();
+            Player1::GetInstance()->j1_x = Player1::GetInstance()->getTransform()->x+5;
+            Player1::GetInstance()->j1_y = Player1::GetInstance()->getTransform()->y + Player1::GetInstance()->getCollider().GetBox().h-6;
+        }
+        else {
+            Player1::GetInstance()->JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
+            Player1::GetInstance()->j2_x = Player1::GetInstance()->getTransform()->x+5;
+            Player1::GetInstance()->j2_y = Player1::GetInstance()->getTransform()->y + Player1::GetInstance()->getCollider().GetBox().h-6;
+        }
+        Player1::GetInstance()->ReduceJumps();
+        Player1::GetInstance()->SetInAir() = true;
+        Player1::GetInstance()->SetAllowInput() = false;
+        Player1::GetInstance()->SetPrevState();
+        Player1::GetInstance()->SetState(STATE::JUMPING, Player1::GetInstance()->GetState().second);
+        Player1::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
+    }
+    if (scancode == PLAYER1_DASH_SCANCODE && Player1::GetInstance()->CanDash() && SDL_GetTicks() - Player1::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
+        Player1::GetInstance()->Dashing() = true;
+        Player1::GetInstance()->CanDash() = false;
+        Player1::GetInstance()->DashLength() = 150;
+        Player1::GetInstance()->DashTime() = 0;
+        Player1::GetInstance()->getTransform()->translateY(-1.0f);
+        Player1::GetInstance()->GetLastDash() = SDL_GetTicks();
+        Player1::GetInstance()->GetRigidBody()->resetAccelerationX();
+        Player1::GetInstance()->GetRigidBody()->resetVelocity();
+        Player1::GetInstance()->GetRigidBody()->resetPosition();
+        Player1::GetInstance()->SetAllowInput() = false;
+        if (Player1::GetInstance()->GetState().second == FACE::RIGHT) Player1::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * FORWARD);
+        else if (Player1::GetInstance()->GetState().second == FACE::LEFT) Player1::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
+    }
+    if (scancode == SDL_SCANCODE_ESCAPE) {
+        SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+        return;
+    }
+    if (Input::GetInstance()->GetKeyState()[PLAYER1_GO_RIGHT_SCANCODE] && scancode == PLAYER1_GO_LEFT_SCANCODE) Player1::GetInstance()->SetSmoothMovement() = true;
+    if (Input::GetInstance()->GetKeyState()[PLAYER1_GO_LEFT_SCANCODE] && scancode == PLAYER1_GO_RIGHT_SCANCODE) Player1::GetInstance()->SetSmoothMovement() = false;
 }
 
 void Scene_0::KeyUp(SDL_Scancode scancode){
@@ -335,6 +376,22 @@ void Scene_0::KeyUp(SDL_Scancode scancode){
         case PLAYER_JUMP_SCANCODE:
             Player::GetInstance()->SetPrevState();
             Player::GetInstance()->NeedChangeState() = true;
+            break;
+        case PLAYER1_GO_RIGHT_SCANCODE:
+            Player1::GetInstance()->SetPrevState();
+            Player1::GetInstance()->NeedChangeState() = true;
+            Player1::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
+            Player1::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
+            break;
+        case PLAYER1_GO_LEFT_SCANCODE:
+            Player1::GetInstance()->SetPrevState();
+            Player1::GetInstance()->NeedChangeState() = true;
+            Player1::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
+            Player1::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
+            break;
+        case PLAYER1_JUMP_SCANCODE:
+            Player1::GetInstance()->SetPrevState();
+            Player1::GetInstance()->NeedChangeState() = true;
             break;
     }
 }

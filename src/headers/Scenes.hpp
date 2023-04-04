@@ -2,6 +2,7 @@
 
 #include "Scene.hpp"
 #include "Player.hpp"
+#include "Player1.hpp"
 #include "SceneManager.hpp"
 #include "Planet.hpp"
 #include "Hover_platform.hpp"
@@ -79,6 +80,7 @@ private:
     int countSun, countMoon;
     int samurai_x = 210, GO = 1;
     TTF_Font* freedom;
+    Player1* player1;
     Player* player;
     GameObject* Left_platform;
     GameObject* Right_platform;

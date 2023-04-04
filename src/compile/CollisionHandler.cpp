@@ -2,6 +2,7 @@
 #include "Player.hpp"
 #include "Engine.hpp"
 #include "Scenes.hpp"
+#include "Player1.hpp"
 #include "GameObjectHandler.hpp"
 
 CollisionHandler* CollisionHandler::StaticInstance = nullptr;
@@ -49,8 +50,8 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
                 return;
             }
             (*i)->Clean();
-            ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
             delete *i;
+            ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
         }
         else if (Player::GetInstance()->GetRigidBody()->getVelocity().y >= 0){ 
             if (strcmp((*i)->GetID(), "Left_platform") == 0 && 
@@ -84,5 +85,72 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
         }
     // Update Player Rect
     Player::GetInstance()->UpdateCollider();
+    }
+}
+
+void CollisionHandler::Player1Collisions(Collider& player_rect){
+    // Ground Collision
+    if (GroundCollision(player_rect)){
+        Player1::GetInstance()->SetInAir() = false;
+        Player1::GetInstance()->SetTransform()->y = Engine::GetInstance()->GetGround().y - player_rect.GetBox().h;
+        Player1::GetInstance()->GetRigidBody()->resetVelocityY();
+        Player1::GetInstance()->ResetJumps();
+    }
+
+    // Map's sides collision
+    if (player_rect.GetBox().x < 0) Player1::GetInstance()->SetTransform()->x = -OFFSET;
+    else if (player_rect.GetBox().x > (WIDTH-player_rect.GetBox().w)) Player1::GetInstance()->SetTransform()->x = WIDTH-player_rect.GetBox().w-OFFSET;
+
+    // Check collision with every gameobject
+    for (std::set<GameObject*, custom_set>::iterator i = ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).begin(); i != ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).end(); i++){
+        if (*i == Player1::GetInstance()) continue;
+        if ((strcmp((*i)->GetID(), "sun") == 0 || strcmp((*i)->GetID(), "moon") == 0) && CheckCollision(player_rect, (*i)->getCollider())){
+            if (strcmp((*i)->GetID(), "sun") == 0){
+                Scene_0::GetInstance()->HOURS.second += 1440/Scene_0::GetInstance()->max_sun;
+                if (Scene_0::GetInstance()->HOURS.second >= 60){
+                    Scene_0::GetInstance()->HOURS.first += 1;
+                    Scene_0::GetInstance()->HOURS.second -= 60;
+                }
+            }
+            else{
+                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                return;
+            }
+            (*i)->Clean();
+            ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
+            delete *i;
+        }
+        else if (Player1::GetInstance()->GetRigidBody()->getVelocity().y >= 0){ 
+            if (strcmp((*i)->GetID(), "Left_platform") == 0 && 
+                CheckCollision(player_rect, (*i)->getCollider()) && 
+                player_rect.GetBox().y + player_rect.GetBox().h <= (*i)->getCollider().GetBox().y + MAX_POS_Y) {
+
+                Player1::GetInstance()->SetTransform()->y = (*i)->getCollider().GetBox().y - player_rect.GetBox().h;
+                Player1::GetInstance()->GetRigidBody()->resetVelocityY();
+                Player1::GetInstance()->SetInAir() = false;
+                Player1::GetInstance()->ResetJumps();
+            }
+            else if (strcmp((*i)->GetID(), "Right_platform") == 0 && 
+                     CheckCollision(player_rect, (*i)->getCollider()) && 
+                     player_rect.GetBox().y + player_rect.GetBox().h <= (*i)->getCollider().GetBox().y + MAX_POS_Y) {
+                        
+                Player1::GetInstance()->SetInAir() = false;
+                Player1::GetInstance()->SetTransform()->y = (*i)->getCollider().GetBox().y - player_rect.GetBox().h;
+                Player1::GetInstance()->GetRigidBody()->resetVelocityY();
+                Player1::GetInstance()->ResetJumps();
+            }
+            else if (strcmp((*i)->GetID(), "Hover_platform") == 0 && 
+                     CheckCollision(player_rect, (*i)->getCollider()) && 
+                     player_rect.GetBox().y + player_rect.GetBox().h <= (*i)->getCollider().GetBox().y + MAX_POS_Y + 1) {
+                Player1::GetInstance()->SetInAir() = false;
+                Player1::GetInstance()->SetTransform()->y = (*i)->getCollider().GetBox().y - player_rect.GetBox().h;
+                Player1::GetInstance()->GetRigidBody()->resetVelocityY();
+                Player1::GetInstance()->ResetJumps();
+            }
+            // Double from platforms
+            //else Player::GetInstance()->SetInAir() = true;
+        }
+    // Update Player Rect
+    Player1::GetInstance()->UpdateCollider();
     }
 }

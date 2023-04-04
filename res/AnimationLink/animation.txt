@@ -1,5 +1,6 @@
 player res/Assests/human.png
 player1 res/Assests/human1.png
+player2 res/Assests/human2.png
 background res/backgrounds/background.png
 Left_platform res/Assests/Left_platform.png
 Right_platform res/Assests/Right_platform.png
