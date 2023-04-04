@@ -110,6 +110,7 @@ Select::Select() : ID(SELECT_SCENE){
     if (Menu::GetInstance()->mode_2) mode = 2;
     else mode = 1;
     skin_has_been_selected = false;
+    skin1_has_been_selected = false;
     minute_per_sun = 30;
     TextureManager::GetInstance()->CreateTextureFromText(&fifteen, font, "15", {0, 0, 0, 255});
     TextureManager::GetInstance()->CreateTextureFromText(&thirty, font, "30", {0, 0, 0, 255});
@@ -140,32 +141,42 @@ void Select::Update(float& dt){
 void Select::Render(){
         TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
         TextureManager::GetInstance()->Render(selected_skin.c_str(), 0, 0, 32, 32, 4.0f);
+        if (mode == 2) TextureManager::GetInstance()->Render(selected_skin1.c_str(), 0, 400, 32, 32, 4.0f);
+        
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), selected_minutes, nullptr, &minute_box);
 
         if (!skin_has_been_selected) {
             SDL_Rect a = {0, 0, 32*4, 32*4};
             SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
         }
-        else {
+        if (!skin1_has_been_selected && mode == 2){
+            SDL_Rect a = {0, 400, 32*4, 32*4};
+            SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
+        }
+        if (mode == 1 && skin_has_been_selected) {
+            SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
+        }
+        else if (mode == 2 && skin_has_been_selected && skin1_has_been_selected) {
             SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
         }
     }
 
 void Select::KeyDown(SDL_Scancode scancode){
-    if (Select::GetInstance()->skin_has_been_selected == false){
+    if (skin_has_been_selected == false){
         switch (scancode){
             case SDL_SCANCODE_LEFT:
-                Select::GetInstance()->Skins_iterator--;
-                if (Select::GetInstance()->Skins_iterator < 0) Select::GetInstance()->Skins_iterator = Select::GetInstance()->vectorSkins.size()-1;
-                Select::GetInstance()->selected_skin = Select::GetInstance()->vectorSkins[Select::GetInstance()->Skins_iterator];
+                Skins_iterator--;
+                if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
+                selected_skin = vectorSkins[Skins_iterator];
                 break;
             case SDL_SCANCODE_RIGHT:
-                Select::GetInstance()->Skins_iterator++;
-                if (Select::GetInstance()->Skins_iterator == Select::GetInstance()->vectorSkins.size()) Select::GetInstance()->Skins_iterator = 0;
-                Select::GetInstance()->selected_skin = Select::GetInstance()->vectorSkins[Select::GetInstance()->Skins_iterator];
+                Skins_iterator++;
+                if (Skins_iterator == vectorSkins.size()) Skins_iterator = 0;
+                selected_skin = vectorSkins[Skins_iterator];
                 break;
             case SDL_SCANCODE_RETURN:
-                Select::GetInstance()->skin_has_been_selected = true;
+                skin_has_been_selected = true;
+                return;
                 break;
             case SDL_SCANCODE_ESCAPE:
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
@@ -173,7 +184,29 @@ void Select::KeyDown(SDL_Scancode scancode){
                 break;
         }
     }
-    else {
+    if (!skin1_has_been_selected && mode == 2){
+        switch (scancode){
+            case SDL_SCANCODE_A:
+                Skins1_iterator--;
+                if (Skins1_iterator < 0) Skins1_iterator = vectorSkins.size()-1;
+                selected_skin1 = vectorSkins[Skins1_iterator];
+                break;
+            case SDL_SCANCODE_D:
+                Skins1_iterator++;
+                if (Skins1_iterator == vectorSkins.size()) Skins1_iterator = 0;
+                selected_skin1 = vectorSkins[Skins1_iterator];
+                break;
+            case SDL_SCANCODE_RETURN:
+                skin1_has_been_selected = true;
+                return;
+                break;
+            case SDL_SCANCODE_ESCAPE:
+                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                return;
+                break;
+        }
+    }
+    if ((skin_has_been_selected && mode == 1) || (mode == 2 && skin_has_been_selected && skin1_has_been_selected)) {
         switch (scancode){
             case SDL_SCANCODE_LEFT:
                 Select::GetInstance()->Minute_iterator--;
@@ -215,7 +248,7 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     Right_platform = new GameObject(new Properties("Right_platform", 830, 506, 370, 40, ID, 1));
 
     player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
-    if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
+    if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
     Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
     countSun = 0;
@@ -413,8 +446,9 @@ void Scene_0::KeyUp(SDL_Scancode scancode){
             Player::GetInstance()->SetPrevState();
             Player::GetInstance()->NeedChangeState() = true;
             break;
-        if (Player1::GetInstance() != nullptr) {
-            SDL_Log("2");
+    }
+    if (Player1::GetInstance() != nullptr) {
+        switch(scancode){    
             case PLAYER1_GO_RIGHT_SCANCODE:
                 Player1::GetInstance()->SetPrevState();
                 Player1::GetInstance()->NeedChangeState() = true;

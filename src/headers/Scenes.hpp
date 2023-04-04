@@ -46,10 +46,11 @@ class Select : Scene
 public: 
     static Select* GetInstance(){return static_instance;}
     int minute_per_sun, mode;
-    bool skin_has_been_selected;
-    int Skins_iterator = 0, Minute_iterator = 1;
+    bool skin_has_been_selected, skin1_has_been_selected;
+    int Skins_iterator = 0, Skins1_iterator = 0, Minute_iterator = 1;
     SDL_Texture* selected_minutes;
     std::string selected_skin = "player";
+    std::string selected_skin1 = "player";
     std::vector <std::string> vectorSkins;
     std::vector <SDL_Texture*> vectorMinute;
 private:
