@@ -15,18 +15,22 @@ class Menu : Scene
 public:
     static Menu* GetInstance(){return static_instance;}
     int i = 0, j = 0;
+    bool mode_2;
     SDL_Rect* currentRect;
     inline std::vector<std::vector<SDL_Rect*>> GetVectorRect(){return vectorRect;}
 private:
     static Menu* static_instance;
     int ID;
+    bool ChoosingMode;
     TTF_Font* font;
     TTF_Font* title;
     SDL_Texture* Play;
     SDL_Texture* Title;
     SDL_Texture* Option;
     SDL_Texture* Exit;
-    SDL_Rect play_rect, option_rect, title_rect, exit_rect;
+    SDL_Texture* Mode_1;
+    SDL_Texture* Mode_2;
+    SDL_Rect play_rect, option_rect, title_rect, exit_rect, mode_1_rect, mode_2_rect;
     std::vector <std::vector<SDL_Rect*>> vectorRect;
 public:
     Menu();
@@ -41,7 +45,7 @@ class Select : Scene
 {
 public: 
     static Select* GetInstance(){return static_instance;}
-    int minute_per_sun;
+    int minute_per_sun, mode;
     bool skin_has_been_selected;
     int Skins_iterator = 0, Minute_iterator = 1;
     SDL_Texture* selected_minutes;

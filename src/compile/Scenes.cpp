@@ -4,6 +4,7 @@ Menu* Menu::static_instance = nullptr;
 Menu::Menu() : ID(MENU_SCENE) {        
     SceneManager::GetInstance()->addScene(ID, this);
     static_instance = this;
+    ChoosingMode = false;
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 70);
     title = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
 
@@ -19,8 +20,15 @@ Menu::Menu() : ID(MENU_SCENE) {
     TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "EXIT", {255, 255, 0});
     MakeRectFromTexture(&Exit, &exit_rect, 500, 500);
 
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "1", {255, 255, 0});
+    MakeRectFromTexture(&Mode_1, &mode_1_rect, play_rect.x - 50, 250);
+
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "2", {255, 255, 0});
+    MakeRectFromTexture(&Mode_2, &mode_2_rect, play_rect.x - 50, 300);
+
     currentRect = &play_rect;
     vectorRect.push_back({&play_rect, &option_rect, &exit_rect});
+    vectorRect.push_back({&mode_1_rect, &mode_2_rect});
 }
 Menu::~Menu(){
     TTF_CloseFont(font);
@@ -29,6 +37,8 @@ Menu::~Menu(){
     SDL_DestroyTexture(Play);
     SDL_DestroyTexture(Option);
     SDL_DestroyTexture(Exit);
+    SDL_DestroyTexture(Mode_1);
+    SDL_DestroyTexture(Mode_2);
 }
 void Menu::Update(float& dt){
     GameObjectHandler::GetInstance()->Update(dt);
@@ -39,26 +49,49 @@ void Menu::Render(){
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Play, nullptr, &play_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Option, nullptr, &option_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Exit, nullptr, &exit_rect);
+    if (ChoosingMode){
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Mode_1, nullptr, &mode_1_rect);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Mode_2, nullptr, &mode_2_rect);
+    }
     SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
 }
 
 void Menu::KeyDown(SDL_Scancode scancode){
     switch(scancode){
         case SDL_SCANCODE_DOWN:
-            Menu::GetInstance()->j++;
-            if (Menu::GetInstance()->j == Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i].size()) Menu::GetInstance()->j = 0;
-            Menu::GetInstance()->currentRect = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i][Menu::GetInstance()->j];
+            j++;
+            if (j == vectorRect[i].size()) j = 0;
+            currentRect = vectorRect[i][j];
             break;
         case SDL_SCANCODE_UP:
-            Menu::GetInstance()->j--;
-            if (Menu::GetInstance()->j < 0) Menu::GetInstance()->j = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i].size()-1;
-            Menu::GetInstance()->currentRect = Menu::GetInstance()->GetVectorRect()[Menu::GetInstance()->i][Menu::GetInstance()->j];
+            j--;
+            if (j < 0) j = vectorRect[i].size()-1;
+            currentRect = vectorRect[i][j];
             break;
         case SDL_SCANCODE_RETURN:
-            if (Menu::GetInstance()->currentRect == &play_rect) SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
-            else if (Menu::GetInstance()->currentRect == &exit_rect) {
-                Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
-                return;
+            if (!ChoosingMode){
+                if (currentRect == &play_rect) {
+                    ChoosingMode = true;
+                    i++;
+                    currentRect = &mode_1_rect;
+                }
+                else if (Menu::GetInstance()->currentRect == &exit_rect) {
+                    Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
+                    return;
+                }
+            }
+            else {
+                if (currentRect == &mode_1_rect) mode_2 = false;
+                else mode_2 = true;
+                SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
+            }
+            break;
+        case SDL_SCANCODE_ESCAPE:
+            if (ChoosingMode) {
+                ChoosingMode = false;
+                i--;
+                j = 0;
+                currentRect = &play_rect;
             }
             break;
     }
@@ -74,7 +107,8 @@ Select::Select() : ID(SELECT_SCENE){
     static_instance = this;
 
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 40);
-
+    if (Menu::GetInstance()->mode_2) mode = 2;
+    else mode = 1;
     skin_has_been_selected = false;
     minute_per_sun = 30;
     TextureManager::GetInstance()->CreateTextureFromText(&fifteen, font, "15", {0, 0, 0, 255});
@@ -157,6 +191,7 @@ void Select::KeyDown(SDL_Scancode scancode){
                 break;
             case SDL_SCANCODE_RETURN:
                 SceneManager::GetInstance()->ChangeScene(PLAYSCENE);
+                return;
                 break;
             case SDL_SCANCODE_ESCAPE:
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
@@ -180,9 +215,8 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     Right_platform = new GameObject(new Properties("Right_platform", 830, 506, 370, 40, ID, 1));
 
     player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
-    player1 = new Player1(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
+    if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
-
     Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
     countSun = 0;
     max_sun = 1440 / Select::GetInstance()->minute_per_sun;
@@ -318,7 +352,8 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
     if (Input::GetInstance()->GetKeyState()[PLAYER_GO_RIGHT_SCANCODE] && scancode == PLAYER_GO_LEFT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = true;
     if (Input::GetInstance()->GetKeyState()[PLAYER_GO_LEFT_SCANCODE] && scancode == PLAYER_GO_RIGHT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = false;
     //////////////////////////////////////////
-    if (scancode == PLAYER1_JUMP_SCANCODE && ((Player1::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player1::GetInstance()->lastJump >= 0)) || Player1::GetInstance()->GetRemainJumps() == 1)/* && Player1::GetInstance()->GetAllowInput() == true*/){
+    if (Player1::GetInstance() != nullptr){
+        if (scancode == PLAYER1_JUMP_SCANCODE && ((Player1::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player1::GetInstance()->lastJump >= 0)) || Player1::GetInstance()->GetRemainJumps() == 1)/* && Player1::GetInstance()->GetAllowInput() == true*/){
         if (Player1::GetInstance()->GetRemainJumps() == 2) {
             Player1::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
             Player1::GetInstance()->lastJump = SDL_GetTicks();
@@ -337,26 +372,27 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
         Player1::GetInstance()->SetState(STATE::JUMPING, Player1::GetInstance()->GetState().second);
         Player1::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
     }
-    if (scancode == PLAYER1_DASH_SCANCODE && Player1::GetInstance()->CanDash() && SDL_GetTicks() - Player1::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
-        Player1::GetInstance()->Dashing() = true;
-        Player1::GetInstance()->CanDash() = false;
-        Player1::GetInstance()->DashLength() = 150;
-        Player1::GetInstance()->DashTime() = 0;
-        Player1::GetInstance()->getTransform()->translateY(-1.0f);
-        Player1::GetInstance()->GetLastDash() = SDL_GetTicks();
-        Player1::GetInstance()->GetRigidBody()->resetAccelerationX();
-        Player1::GetInstance()->GetRigidBody()->resetVelocity();
-        Player1::GetInstance()->GetRigidBody()->resetPosition();
-        Player1::GetInstance()->SetAllowInput() = false;
-        if (Player1::GetInstance()->GetState().second == FACE::RIGHT) Player1::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * FORWARD);
-        else if (Player1::GetInstance()->GetState().second == FACE::LEFT) Player1::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
+        if (scancode == PLAYER1_DASH_SCANCODE && Player1::GetInstance()->CanDash() && SDL_GetTicks() - Player1::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
+            Player1::GetInstance()->Dashing() = true;
+            Player1::GetInstance()->CanDash() = false;
+            Player1::GetInstance()->DashLength() = 150;
+            Player1::GetInstance()->DashTime() = 0;
+            Player1::GetInstance()->getTransform()->translateY(-1.0f);
+            Player1::GetInstance()->GetLastDash() = SDL_GetTicks();
+            Player1::GetInstance()->GetRigidBody()->resetAccelerationX();
+            Player1::GetInstance()->GetRigidBody()->resetVelocity();
+            Player1::GetInstance()->GetRigidBody()->resetPosition();
+            Player1::GetInstance()->SetAllowInput() = false;
+            if (Player1::GetInstance()->GetState().second == FACE::RIGHT) Player1::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * FORWARD);
+            else if (Player1::GetInstance()->GetState().second == FACE::LEFT) Player1::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
+        }
+        if (scancode == SDL_SCANCODE_ESCAPE) {
+            SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+            return;
+        }
+        if (Input::GetInstance()->GetKeyState()[PLAYER1_GO_RIGHT_SCANCODE] && scancode == PLAYER1_GO_LEFT_SCANCODE) Player1::GetInstance()->SetSmoothMovement() = true;
+        if (Input::GetInstance()->GetKeyState()[PLAYER1_GO_LEFT_SCANCODE] && scancode == PLAYER1_GO_RIGHT_SCANCODE) Player1::GetInstance()->SetSmoothMovement() = false;
     }
-    if (scancode == SDL_SCANCODE_ESCAPE) {
-        SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
-        return;
-    }
-    if (Input::GetInstance()->GetKeyState()[PLAYER1_GO_RIGHT_SCANCODE] && scancode == PLAYER1_GO_LEFT_SCANCODE) Player1::GetInstance()->SetSmoothMovement() = true;
-    if (Input::GetInstance()->GetKeyState()[PLAYER1_GO_LEFT_SCANCODE] && scancode == PLAYER1_GO_RIGHT_SCANCODE) Player1::GetInstance()->SetSmoothMovement() = false;
 }
 
 void Scene_0::KeyUp(SDL_Scancode scancode){
@@ -377,21 +413,24 @@ void Scene_0::KeyUp(SDL_Scancode scancode){
             Player::GetInstance()->SetPrevState();
             Player::GetInstance()->NeedChangeState() = true;
             break;
-        case PLAYER1_GO_RIGHT_SCANCODE:
-            Player1::GetInstance()->SetPrevState();
-            Player1::GetInstance()->NeedChangeState() = true;
-            Player1::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
-            Player1::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
-            break;
-        case PLAYER1_GO_LEFT_SCANCODE:
-            Player1::GetInstance()->SetPrevState();
-            Player1::GetInstance()->NeedChangeState() = true;
-            Player1::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
-            Player1::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
-            break;
-        case PLAYER1_JUMP_SCANCODE:
-            Player1::GetInstance()->SetPrevState();
-            Player1::GetInstance()->NeedChangeState() = true;
-            break;
+        if (Player1::GetInstance() != nullptr) {
+            SDL_Log("2");
+            case PLAYER1_GO_RIGHT_SCANCODE:
+                Player1::GetInstance()->SetPrevState();
+                Player1::GetInstance()->NeedChangeState() = true;
+                Player1::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
+                Player1::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
+                break;
+            case PLAYER1_GO_LEFT_SCANCODE:
+                Player1::GetInstance()->SetPrevState();
+                Player1::GetInstance()->NeedChangeState() = true;
+                Player1::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
+                Player1::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
+                break;
+            case PLAYER1_JUMP_SCANCODE:
+                Player1::GetInstance()->SetPrevState();
+                Player1::GetInstance()->NeedChangeState() = true;
+                break;
+        }
     }
 }
