@@ -37,13 +37,13 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
     // Check collision with every gameobject
     for (std::set<GameObject*, custom_set>::iterator i = ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).begin(); i != ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).end(); i++){
         if (*i == Player::GetInstance()) continue;
-        if (*i == Player1::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x < Player1::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w + 10){
+        if (*i == Player1::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x < Player1::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w + 25){
             Player::GetInstance()->SetTransform()->x = Player1::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w - OFFSET;
         }
-        else if (*i == Player1::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x > Player1::GetInstance()->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - 10){
+        else if (*i == Player1::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x > Player1::GetInstance()->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - 25){
             Player::GetInstance()->SetTransform()->x = Player1::GetInstance()->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - OFFSET;
         }
-        else if (*i == Player1::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().y + player_rect.GetBox().h < Player1::GetInstance()->getCollider().GetBox().y + 20){
+        else if (*i == Player1::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().y + player_rect.GetBox().h < Player1::GetInstance()->getCollider().GetBox().y + 25){
             Player::GetInstance()->SetTransform()->y = Player1::GetInstance()->getCollider().GetBox().y - player_rect.GetBox().h - OFFSET;
             Player::GetInstance()->SetInAir() = false;
             Player::GetInstance()->GetRigidBody()->resetVelocityY();
@@ -116,13 +116,13 @@ void CollisionHandler::Player1Collisions(Collider& player_rect){
     // Check collision with every gameobject
     for (std::set<GameObject*, custom_set>::iterator i = ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).begin(); i != ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).end(); i++){
         if (*i == Player1::GetInstance()) continue;
-        if (*i == Player::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x < Player::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w + 10){
+        if (*i == Player::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x < Player::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w + 25){
             Player1::GetInstance()->SetTransform()->x = Player::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w - OFFSET;
         }
-        else if (*i == Player::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x > Player::GetInstance()->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - 10){
+        else if (*i == Player::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x > Player::GetInstance()->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - 25){
             Player1::GetInstance()->SetTransform()->x = Player::GetInstance()->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - OFFSET;
         }
-        else if (*i == Player::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().y + player_rect.GetBox().h < Player::GetInstance()->getCollider().GetBox().y + 20){
+        else if (*i == Player::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().y + player_rect.GetBox().h < Player::GetInstance()->getCollider().GetBox().y + 25){
             Player1::GetInstance()->SetTransform()->y = Player::GetInstance()->getCollider().GetBox().y - player_rect.GetBox().h - 1 - OFFSET;
             Player1::GetInstance()->SetInAir() = false;
             Player1::GetInstance()->GetRigidBody()->resetVelocityY();

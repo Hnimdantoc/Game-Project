@@ -50,7 +50,7 @@ Player1::Player1(Properties* prop){
     _Rect.y = _Transform->y;
     _Rect.w = w * PLAYER_SCALE;
     _Rect.h = h * PLAYER_SCALE;
-    _Collider = Collider({_Rect.x + OFFSET, _Rect.y + OFFSET, _Rect.w - 2*OFFSET, _Rect.h});
+    _Collider = Collider({_Rect.x + OFFSET, _Rect.y + OFFSET, _Rect.w - 2*OFFSET, _Rect.h - OFFSET});
     JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
     JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
     delete prop;
