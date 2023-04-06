@@ -9,7 +9,7 @@
 #define PLAYER1_GO_LEFT_SCANCODE SDL_SCANCODE_A
 #define PLAYER1_GO_RIGHT_SCANCODE SDL_SCANCODE_D
 #define PLAYER1_JUMP_SCANCODE SDL_SCANCODE_W
-#define PLAYER1_DASH_SCANCODE SDL_SCANCODE_J
+#define PLAYER1_DASH_SCANCODE SDL_SCANCODE_Q
 
 class Player1 : public GameObject
 {
@@ -50,7 +50,7 @@ public:
     inline bool& SetSmoothMovement(){return enableSmoothMovement;}
     inline void UpdateCollider(){
         _Collider.GetBox().x = _Transform->x + OFFSET;
-        _Collider.GetBox().y = _Transform->y;
+        _Collider.GetBox().y = _Transform->y + OFFSET;
     }
     inline int GetRemainJumps(){return jumps;}
     inline void ReduceJumps(){jumps--;}

@@ -357,6 +357,8 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
             Player::GetInstance()->j2_x = Player::GetInstance()->getTransform()->x+5;
             Player::GetInstance()->j2_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
         }
+        //Planet* sun = new Planet(new Properties("sun", 592, 2, 48, 48, ID, 1, 0, 1/3.0f, 9));
+        //Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
         Player::GetInstance()->ReduceJumps();
         Player::GetInstance()->SetInAir() = true;
         Player::GetInstance()->SetAllowInput() = false;

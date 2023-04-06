@@ -50,7 +50,7 @@ Player1::Player1(Properties* prop){
     _Rect.y = _Transform->y;
     _Rect.w = w * PLAYER_SCALE;
     _Rect.h = h * PLAYER_SCALE;
-    _Collider = Collider({_Rect.x + OFFSET, _Rect.y, _Rect.w - 2*OFFSET, _Rect.h});
+    _Collider = Collider({_Rect.x + OFFSET, _Rect.y + OFFSET, _Rect.w - 2*OFFSET, _Rect.h});
     JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
     JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
     delete prop;
@@ -88,17 +88,26 @@ void Player1::Update(float& dt){
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
                 SetPrevState();
                 SetState(STATE::RUNNING, FACE::LEFT);
+                if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0 && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
+                    Player::GetInstance()->GetRigidBody()->applyForceX(-10000.0f);
+                }
             }
             else{
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * FORWARD);
                 SetPrevState();
                 SetState(STATE::RUNNING, FACE::RIGHT);
+                if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0 && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
+                    Player::GetInstance()->GetRigidBody()->applyForceX(10000.0f);
+                }
             }
         }
         else if (Input::GetInstance()->GetKeyDown(PLAYER1_GO_LEFT_SCANCODE)){
             _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
             SetPrevState();
             SetState(STATE::RUNNING, FACE::LEFT);
+            if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0 && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
+                Player::GetInstance()->GetRigidBody()->applyForceX(-10000.0f);
+            }
         }
     }
     // Physics
@@ -118,7 +127,7 @@ void Player1::Update(float& dt){
             Player1::GetInstance()->GetRigidBody()->resetPosition();
         }
     }
-    
+    _RigidBody->resetForceX();
     Player1::GetInstance()->getTransform()->translateVector({_RigidBody->getPosition().x, _RigidBody->getPosition().y});
     Player1::GetInstance()->UpdateCollider();
     // Update the Animation

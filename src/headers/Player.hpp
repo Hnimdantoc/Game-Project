@@ -54,7 +54,7 @@ public:
     inline bool& SetSmoothMovement(){return enableSmoothMovement;}
     inline void UpdateCollider(){
         _Collider.GetBox().x = _Transform->x + OFFSET;
-        _Collider.GetBox().y = _Transform->y;
+        _Collider.GetBox().y = _Transform->y + OFFSET;
     }
     inline int GetRemainJumps(){return jumps;}
     inline void ReduceJumps(){jumps--;}
@@ -68,4 +68,5 @@ public:
     void Render();
     void Update(float& dt);
     void Clean();
+    void Physics(float& dt);
 };

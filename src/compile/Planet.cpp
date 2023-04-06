@@ -36,12 +36,12 @@ Planet::Planet(Properties* prop){
 Planet::~Planet(){}
 
 void Planet::Update(float& dt){
+    _Transform->translateVector(move);
     if (strcmp(ID, "sun") == 0) {
         _RigidBody->setMass(1.0f);
         SunCollision();
     }
     else if (strcmp(ID, "moon") == 0) MoonCollision();
-    _Transform->translateVector(move);
     
     _RigidBody->Update(dt);
     UpdateCollider();
@@ -121,6 +121,7 @@ void Planet::SunCollision(){
                     _Transform->x = (*i)->getCollider().GetBox().x + (*i)->getCollider().GetBox().w + 1;
                 }
             }
+ 
             else if (strcmp((*i)->GetID(), "moon") == 0 && _RigidBody->getMass() == 1.0f){
                 if (_Collider.GetBox().y + _Collider.GetBox().h <= (*i)->getCollider().GetBox().y + speed*3){
                     move.y *= -1;
@@ -157,7 +158,7 @@ void Planet::MoonCollision(){
         else _Transform->y = HEIGHT - _Collider.GetBox().h - 1;
     }
     for (std::set<GameObject*, custom_set>::iterator i = ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).begin(); i != ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).end(); i++){
-        if (strcmp((*i)->GetID(), "moon") == 0) continue;
+        if (*i == this) continue;
         if (CollisionHandler::GetInstance()->CheckCollision(_Collider, (*i)->getCollider())){
             if (strcmp((*i)->GetID(), "Left_platform") == 0){
                 if (_Collider.GetBox().y <= (*i)->getCollider().GetBox().y - _Collider.GetBox().h + speed*2){
@@ -223,8 +224,26 @@ void Planet::MoonCollision(){
                     _Transform->x = (*i)->getCollider().GetBox().x + (*i)->getCollider().GetBox().w + speed*2;
                 }
             }
+            else if (strcmp((*i)->GetID(), "moon") == 0) {
+                if (_Collider.GetBox().y + _Collider.GetBox().h <= (*i)->getCollider().GetBox().y + speed*4){
+                    move.y *= -1;
+                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1;
+                }
+                else if (_Collider.GetBox().y >= (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h - speed*4){
+                    move.y *= -1;
+                    _Transform->y = (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h + 1;
+                }
+                if (_Collider.GetBox().x + _Collider.GetBox().w <= (*i)->getCollider().GetBox().x + speed*3){
+                    move.x *= -1;
+                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - 1;
+                }
+                else if (_Collider.GetBox().x >= (*i)->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - speed*3){
+                    move.x *= -1;
+                    _Transform->x = (*i)->getCollider().GetBox().x + (*i)->getCollider().GetBox().w + 1;
+                }
+            }
         } 
-    UpdateCollider();
+        UpdateCollider();
     }
 }
 

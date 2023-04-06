@@ -14,14 +14,13 @@ RigidBody2D::~RigidBody2D(){}
 
 void RigidBody2D::Update(float dt){
     // Use this to push objects
-    //_acceleration.x = (_force.x + _friction.x) / _mass;
+    _acceleration.x = (_force.x + _friction.x) / _mass + _acceleration.x;
     
     // Movement in air
     // Gravitational acceleration
     _acceleration.y = _gravity + _force.y / _mass;
     /*----------------------------------Movemen in y axis----------------------------------*/
     _velocity.y = _acceleration.y * dt + _velocity.y;
-    //std::cout << _velocity.y << std::endl;
     if (_velocity.y <= JUMP_VELOCITY*UPWARD) _velocity.y = JUMP_VELOCITY*UPWARD;
     else if (_velocity.y >= JUMP_VELOCITY) _velocity.y = JUMP_VELOCITY;
 
@@ -35,10 +34,11 @@ void RigidBody2D::Update(float dt){
     else if (_acceleration.x == DECCELERATE_TO_ZERO * FORWARD && _velocity.x >= 0) resetAccelerationX();
     // Velocity limiter
     // Apply velocity to get position and update velocity
-    _position.x = _velocity.x * dt;
     _velocity.x = _acceleration.x * dt + _velocity.x;
+    _position.x = _velocity.x * dt;
     if (_velocity.x >= MAX_VELOCITTY) _velocity.x = MAX_VELOCITTY;
     else if (_velocity.x <= -MAX_VELOCITTY) _velocity.x = -MAX_VELOCITTY;
+    _acceleration.x -= (_force.x + _friction.x) / _mass;
     // Stop movement after acceleration equal 0
     if (abs(_acceleration.x) <= 0){
         resetForceX();
