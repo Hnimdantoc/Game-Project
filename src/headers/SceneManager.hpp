@@ -14,7 +14,7 @@ public:
     static SceneManager* GetInstance(){return static_instance = (static_instance != nullptr) ? static_instance : new SceneManager();}
     ~SceneManager();
     
-    void ChangeScene(int ID);
+    void ChangeScene(int ID, bool Create = true , bool Transition = true, bool Clean = true);
     inline int GetCurrentSceneID(){return currentScene;}
     inline void addScene(int ID, Scene* _scene){SceneMap[ID] = _scene;}
 
@@ -23,7 +23,7 @@ public:
 
     void Update(float& dt);
     void Render();
-    void Clean();
+    void Clean(int ID = *GameObjectHandler::GetInstance()->ptr_current_scene);
 
     void CleanAllScene();
 private:

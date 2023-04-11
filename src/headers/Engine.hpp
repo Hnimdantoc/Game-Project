@@ -19,6 +19,7 @@
 #define MENU_SCENE 0
 #define SELECT_SCENE 1
 #define PLAYSCENE 2
+#define PAUSE_SCENE -1
 
 
 #define ICON_PATH "res/Icon/t1.png"

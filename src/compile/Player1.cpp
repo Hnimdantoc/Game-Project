@@ -10,7 +10,7 @@ Player1::Player1(){
     Static_Instance = this;
 }
 Player1::~Player1(){
-    SDL_Log("Player1 destroyed");
+    Static_Instance = nullptr;
 }
 
 Player1::Player1(Properties* prop){

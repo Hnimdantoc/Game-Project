@@ -1,5 +1,4 @@
 #include "GameObjectHandler.hpp"
-
 GameObjectHandler* GameObjectHandler::Static_Instance = nullptr;
 
 GameObjectHandler::GameObjectHandler(){}
@@ -21,13 +20,13 @@ void GameObjectHandler::Render(){
     for (GameObject* i : GameObjectMap[*ptr_current_scene]) i->Render();
 }
 
-void GameObjectHandler::Clean(){
-    for (std::set<GameObject*, custom_set>::iterator i = GameObjectMap[*ptr_current_scene].begin(); i != GameObjectMap[*ptr_current_scene].end(); i++) {
+void GameObjectHandler::Clean(int ID){
+    for (std::set<GameObject*, custom_set>::iterator i = GameObjectMap[ID].begin(); i != GameObjectMap[ID].end(); i++) {
         (*i)->Clean();
         delete *i;
-        GameObjectMap[*ptr_current_scene].erase(i);
+        GameObjectMap[ID].erase(i);
     }
-    GameObjectMap[*ptr_current_scene].clear();
+    GameObjectMap[ID].clear();
 }
 
 void GameObjectHandler::CleanAllGameObjects(){

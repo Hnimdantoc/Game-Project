@@ -10,7 +10,6 @@ Player::Player(){
     Static_Instance = this;
 }
 Player::~Player(){
-    SDL_Log("Player destroyed");
 }
 
 Player::Player(Properties* prop){
@@ -72,7 +71,6 @@ void Player::Physics(float& dt){
         Player::GetInstance()->GetRigidBody()->setPosition().x = Player::GetInstance()->GetRigidBody()->getVelocity().x * dt;
         Player::GetInstance()->GetRigidBody()->applyVelocityX(Player::GetInstance()->GetRigidBody()->getAcceleration().x * dt + Player::GetInstance()->GetRigidBody()->getVelocity().x);
         Player::GetInstance()->DashTime() += dt;
-        std::cout << Player::GetInstance()->GetRigidBody()->getPosition().x << std::endl;
         Player::GetInstance()->DashLength() -= abs(Player::GetInstance()->GetRigidBody()->getPosition().x) + abs(Player::GetInstance()->GetRigidBody()->getPosition().y);
         if (Player::GetInstance()->DashTime() >= 0.15 || Player::GetInstance()->DashLength() <= 0) {
             Player::GetInstance()->CanDash() = true;

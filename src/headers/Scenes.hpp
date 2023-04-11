@@ -10,7 +10,7 @@
 #include <vector>
 
 
-class Menu : Scene
+class Menu : public Scene
 {
 public:
     static Menu* GetInstance(){return static_instance;}
@@ -41,7 +41,7 @@ public:
     void KeyUp(SDL_Scancode scancode);
 };
 
-class Select : Scene
+class Select : public Scene
 {
 public: 
     static Select* GetInstance(){return static_instance;}
@@ -103,4 +103,27 @@ public:
     void KeyUp(SDL_Scancode scancode);
     void UpdateIdle(float dt);
     void RenderSamuraiMerchant();
+};
+
+class Pause : public Scene {
+public:
+    static Pause* GetInstance(){return static_instance;}
+    int i = 0;
+    std::vector<SDL_Rect*> vectorRect;
+private:
+    static Pause* static_instance;
+    int ID;
+    TTF_Font* font;
+    SDL_Texture* Resume;
+    SDL_Texture* Menu;
+    SDL_Texture* background;
+    SDL_Rect* currentRect;
+    SDL_Rect resume_rect, menu_rect;
+public:
+    Pause();
+    ~Pause();
+    void KeyDown(SDL_Scancode scancode);
+    void KeyUp(SDL_Scancode scancode);
+    void Update(float& dt);
+    void Render();
 };

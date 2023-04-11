@@ -250,7 +250,8 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
     if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
-    Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
+    Planet* moon = 
+    new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
     countSun = 0;
     max_sun = 1440 / Select::GetInstance()->minute_per_sun;
     DAYS = 1;
@@ -381,7 +382,33 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
         else if (Player::GetInstance()->GetState().second == FACE::LEFT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
     }
     if (scancode == SDL_SCANCODE_ESCAPE) {
-        SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+        Player::GetInstance()->SetPrevState();
+        Player::GetInstance()->NeedChangeState() = true;
+        if (Player::GetInstance()->GetState().second == RIGHT){
+            Player::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
+            Player::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
+        }
+        else if (Player::GetInstance()->GetState().second == LEFT){
+            Player::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
+            Player::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
+        }
+        if (Player::GetInstance()->GetState().first == RUNNING && Player::GetInstance()->GetState().second == RIGHT){
+            Player::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
+            Player::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
+        }
+        if (Player1::GetInstance() != nullptr){
+            Player1::GetInstance()->SetPrevState();
+            Player1::GetInstance()->NeedChangeState() = true;
+            if (Player1::GetInstance()->GetState().first == RUNNING && Player1::GetInstance()->GetState().second == RIGHT){
+                Player1::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
+                Player1::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
+            }
+            else if (Player1::GetInstance()->GetState().first == RUNNING && Player1::GetInstance()->GetState().second == LEFT){
+                Player1::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
+                Player1::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
+            }
+        }
+        SceneManager::GetInstance()->ChangeScene(PAUSE_SCENE, true, false, false);
         return;
     }
     if (Input::GetInstance()->GetKeyState()[PLAYER_GO_RIGHT_SCANCODE] && scancode == PLAYER_GO_LEFT_SCANCODE) Player::GetInstance()->SetSmoothMovement() = true;
@@ -469,4 +496,78 @@ void Scene_0::KeyUp(SDL_Scancode scancode){
                 break;
         }
     }
+}
+
+/********************************************************************************/
+
+Pause* Pause::static_instance = nullptr;
+Pause::Pause() : ID(PAUSE_SCENE){
+    SceneManager::GetInstance()->addScene(ID, this);
+    static_instance = this;
+    const Uint32 format = SDL_PIXELFORMAT_ABGR8888;
+    SDL_Surface* snap = SDL_CreateRGBSurfaceWithFormat(0, WIDTH, HEIGHT, 32, format);
+    SDL_RenderReadPixels(Engine::GetInstance()->GetRenderer(), nullptr, format, snap->pixels, snap->pitch);
+    background = SDL_CreateTextureFromSurface(Engine::GetInstance()->GetRenderer(), snap);
+    SDL_FreeSurface(snap);
+
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 70);
+
+    TextureManager::GetInstance()->CreateTextureFromText(&Resume, font, "Resume", {0, 255, 200});
+    MakeRectFromTexture(&Resume, &resume_rect, 0, 0);
+    TextureManager::GetInstance()->CreateTextureFromText(&Menu, font, "Menu", {100, 255, 200});
+    MakeRectFromTexture(&Menu, &menu_rect, 500, 0);
+
+    currentRect = &resume_rect;
+    vectorRect.push_back(&resume_rect);
+    vectorRect.push_back(&menu_rect);
+}
+Pause::~Pause(){
+    SDL_DestroyTexture(Resume);
+    SDL_DestroyTexture(Menu);
+    SDL_DestroyTexture(background);
+    TTF_CloseFont(font);
+}
+
+void Pause::Update(float& dt){
+
+}
+
+void Pause::Render(){
+    SDL_SetRenderDrawBlendMode(Engine::GetInstance()->GetRenderer(), SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), 0, 0, 0, 100);
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), background, nullptr, nullptr);
+    SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(), nullptr);
+
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Resume, nullptr, &resume_rect);
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Menu, nullptr, &menu_rect);
+
+    SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
+}
+
+void Pause::KeyDown(SDL_Scancode scancode){
+    switch (scancode)
+    {
+    case SDL_SCANCODE_LEFT:
+        i--;
+        if (i < 0) i = vectorRect.size() - 1;
+        currentRect = vectorRect[i];
+        break;
+    case SDL_SCANCODE_RIGHT:
+        i++;
+        if (i == vectorRect.size()) i = 0;
+        currentRect = vectorRect[i];
+        break;
+    case SDL_SCANCODE_RETURN:
+        if (currentRect == &resume_rect) SceneManager::GetInstance()->ChangeScene(PLAYSCENE, false, false, true);
+        else if (currentRect == &menu_rect) {
+            SceneManager::GetInstance()->Clean(PLAYSCENE);
+            SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+        }
+        return;
+        break;
+    }
+}
+
+void Pause::KeyUp(SDL_Scancode scancode){
+
 }

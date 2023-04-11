@@ -32,7 +32,7 @@ public:
     ~GameObjectHandler();
     void Update(float& dt);
     void Render();
-    void Clean();
+    void Clean(int ID = *GameObjectHandler::GetInstance()->ptr_current_scene);
 
     void CleanAllGameObjects();
 private:

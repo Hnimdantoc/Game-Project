@@ -17,6 +17,6 @@ void Scene::Update(float& dt){
 void Scene::Render(){
     GameObjectHandler::GetInstance()->Render();
 }
-void Scene::Clean(){
-    GameObjectHandler::GetInstance()->Clean();
+void Scene::Clean(int ID){
+    GameObjectHandler::GetInstance()->Clean(ID);
 }

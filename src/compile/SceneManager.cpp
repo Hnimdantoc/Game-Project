@@ -28,20 +28,23 @@ void SceneManager::Render(){
     SceneMap[currentScene]->Render();
 }
 
-void SceneManager::ChangeScene(int ID){
-    if (ID == MENU_SCENE) Menu* menu = new Menu();
-    else if (ID == SELECT_SCENE) Select* selec_scene = new Select();
-    else if (ID == PLAYSCENE) Scene_0* play_scene = new Scene_0();
-    TextureManager::GetInstance()->Transition();
-    Clean();
+void SceneManager::ChangeScene(int ID, bool Create, bool transition, bool clean){
+    if (Create){
+        if (ID == MENU_SCENE) Menu* menu = new Menu();
+        else if (ID == SELECT_SCENE) Select* selec_scene = new Select();
+        else if (ID == PLAYSCENE) Scene_0* play_scene = new Scene_0();
+        else if (ID == PAUSE_SCENE) Pause* pause_scene = new Pause();
+    }
+    if (transition) TextureManager::GetInstance()->Transition();
+    if (clean) Clean();
     currentScene = ID;
-    TextureManager::GetInstance()->Transition(true);
+    if (transition) TextureManager::GetInstance()->Transition(true);
 }
 
-void SceneManager::Clean(){
-    SceneMap[currentScene]->Clean();
-    delete SceneMap[currentScene];
-    SceneMap.erase(currentScene);
+void SceneManager::Clean(int ID){
+    SceneMap[ID]->Clean(ID);
+    delete SceneMap[ID];
+    SceneMap.erase(ID);
 }
 
 void SceneManager::CleanAllScene(){
