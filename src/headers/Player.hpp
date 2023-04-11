@@ -36,7 +36,6 @@ public:
     Player();
     Player(Properties* prop);
     ~Player();
-
     
     inline std::pair <STATE, FACE>& GetState(){return playerAction;}
     inline std::pair <STATE, FACE>& GetPrevState(){return prevAction;}
@@ -47,9 +46,7 @@ public:
     inline bool& GetInAir(){return inAir;}
     inline bool& SetInAir(){return inAir;}
     inline bool GetAllowInput(){return allowInput;}
-    inline bool& SetAllowInput(){
-        //std::cout << "SET HERE " << _RigidBody->getVelocity().y << std::endl;
-        return allowInput;}
+    inline bool& SetAllowInput(){return allowInput;}
     inline bool& GetSmoothMovement(){return enableSmoothMovement;}
     inline bool& SetSmoothMovement(){return enableSmoothMovement;}
     inline void UpdateCollider(){

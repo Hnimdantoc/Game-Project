@@ -46,21 +46,24 @@ class Select : public Scene
 public: 
     static Select* GetInstance(){return static_instance;}
     int minute_per_sun, mode;
-    bool skin_has_been_selected, skin1_has_been_selected;
-    int Skins_iterator = 0, Skins1_iterator = 0, Minute_iterator = 1;
-    SDL_Texture* selected_minutes;
     std::string selected_skin = "player";
     std::string selected_skin1 = "player";
-    std::vector <std::string> vectorSkins;
-    std::vector <SDL_Texture*> vectorMinute;
+    std::string n_player = "", n_player1 = "";
 private:
     static Select* static_instance;
     int ID;
+    bool skin_has_been_selected, skin1_has_been_selected, name_entered = false, name1_entered = false;
+    int Skins_iterator = 0, Skins1_iterator = 0, Minute_iterator = 1, max_name_char = 10;
     TTF_Font* font;
-    SDL_Rect minute_box;
+    SDL_Rect minute_box, name_box;
+    SDL_Texture* player_name;
+    SDL_Texture* player1_name;
     SDL_Texture* fifteen;
     SDL_Texture* thirty;
     SDL_Texture* forty_five;
+    SDL_Texture* selected_minutes;
+    std::vector <std::string> vectorSkins;
+    std::vector <SDL_Texture*> vectorMinute;
 public:
     Select();
     ~Select();
@@ -68,6 +71,7 @@ public:
     void Render();
     void KeyDown(SDL_Scancode scancode);
     void KeyUp(SDL_Scancode scancode);
+    void KeyText(SDL_Event event);
 };
 
 class Scene_0 : public Scene
@@ -84,13 +88,17 @@ private:
     float spawnSun = 0;
     int countSun, countMoon;
     int samurai_x = 210, GO = 1;
+    std::string name, name1;
     TTF_Font* freedom;
     Player1* player1;
     Player* player;
     GameObject* Left_platform;
     GameObject* Right_platform;
-    SDL_Texture* hours_texture;  
     SDL_Texture* days_texture;  
+    SDL_Texture* hours_texture; 
+    SDL_Texture* player_name;
+    SDL_Texture* player1_name;
+    SDL_Rect p_rect, p1_rect;
     Hover_platform* hover_platform;
     Animation samurai_merchant_idle;
     Animation Rockstand_merchant_idle;

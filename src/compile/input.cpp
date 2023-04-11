@@ -20,6 +20,9 @@ void Input::Listen(){
             case SDL_QUIT:
                 Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
                 break;
+            case SDL_TEXTINPUT:
+                if (SceneManager::GetInstance()->GetCurrentSceneID() == SELECT_SCENE) Select::GetInstance()->KeyText(event);
+                break;
             case SDL_KEYDOWN:
                 KeyDown();
                 break;

@@ -15,6 +15,7 @@ Engine::~Engine(){
 void Engine::init(const char* title, int x, int y, int w, int h, Uint32 flags){
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
+    SDL_StartTextInput();
     static_Instance = this;
     // Init window
     window = SDL_CreateWindow(title, x, y, w, h, flags);
@@ -50,6 +51,7 @@ void Engine::Quit(){
     delete GameObjectHandler::GetInstance();
     SDL_DestroyWindow(window);
     TTF_Quit();
+    SDL_StopTextInput();
     SDL_Quit();
 }
 

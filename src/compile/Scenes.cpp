@@ -116,10 +116,12 @@ Select::Select() : ID(SELECT_SCENE){
     TextureManager::GetInstance()->CreateTextureFromText(&thirty, font, "30", {0, 0, 0, 255});
     selected_minutes = thirty;
     TextureManager::GetInstance()->CreateTextureFromText(&forty_five, font, "45", {0, 0, 0, 255});
-
+    
     minute_box.x = 600;
     minute_box.y = 0;
     SDL_QueryTexture(thirty, nullptr, nullptr, &minute_box.w, &minute_box.h);
+
+    name_box = {0, 300, 300, 100};
 
     vectorMinute.push_back(fifteen);
     vectorMinute.push_back(thirty);
@@ -134,34 +136,82 @@ Select::~Select(){
     SDL_DestroyTexture(fifteen);
     SDL_DestroyTexture(thirty);
     SDL_DestroyTexture(forty_five);
+    SDL_DestroyTexture(player_name);
+    SDL_DestroyTexture(player1_name);
 }
 void Select::Update(float& dt){
-    
+    if (n_player.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, n_player.c_str(), {150, 0, 255});
+    if (mode == 2 && n_player1.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, n_player1.c_str(), {150, 0, 255});
 }
 void Select::Render(){
-        TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
-        TextureManager::GetInstance()->Render(selected_skin.c_str(), 0, 0, 32, 32, 4.0f);
-        if (mode == 2) TextureManager::GetInstance()->Render(selected_skin1.c_str(), 0, 400, 32, 32, 4.0f);
-        
-        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), selected_minutes, nullptr, &minute_box);
+    TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
+    TextureManager::GetInstance()->Render(selected_skin.c_str(), 0, 0, 32, 32, 4.0f);
+    if (mode == 2) TextureManager::GetInstance()->Render(selected_skin1.c_str(), 0, 400, 32, 32, 4.0f);
+    
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), selected_minutes, nullptr, &minute_box);
 
-        if (!skin_has_been_selected) {
-            SDL_Rect a = {0, 0, 32*4, 32*4};
-            SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
-        }
-        if (!skin1_has_been_selected && mode == 2){
-            SDL_Rect a = {0, 400, 32*4, 32*4};
-            SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
-        }
-        if (mode == 1 && skin_has_been_selected) {
-            SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
-        }
-        else if (mode == 2 && skin_has_been_selected && skin1_has_been_selected) {
-            SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
-        }
+    SDL_Rect temp;
+    if (n_player.length() > 0) MakeRectFromTexture(&player_name, &temp, 0, 300);
+    if (n_player.length() > 0) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &temp);
+    if (mode == 2 && n_player1.length() > 0) MakeRectFromTexture(&player1_name, &temp, 0, 600);
+    if (mode == 2 && n_player1.length() > 0) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &temp);
+    if (n_player.length() > 0)SDL_DestroyTexture(player_name);
+    if (mode == 2 && n_player1.length() > 0) SDL_DestroyTexture(player1_name);
+
+    if ((mode == 1 && !name_entered) || (mode == 2 && !name1_entered)){
+        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &name_box);
     }
+    
+    if ((!skin_has_been_selected && name_entered && mode == 1) || (!skin_has_been_selected && name_entered && name1_entered && mode == 2)) {
+        SDL_Rect a = {0, 0, 32*4, 32*4};
+        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
+    }
+    if (!skin1_has_been_selected && mode == 2 && name1_entered && name_entered){
+        SDL_Rect a = {0, 400, 32*4, 32*4};
+        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
+    }
+    if (mode == 1 && skin_has_been_selected && name_entered) {
+        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
+    }
+    else if (mode == 2 && skin_has_been_selected && skin1_has_been_selected && name1_entered && name_entered) {
+        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
+    }
+}
+
+void Select::KeyText(SDL_Event event){
+    if (n_player.length() <= max_name_char && !name_entered){
+        if (*event.text.text >= 'a' && *event.text.text <= 'z') n_player += *event.text.text;
+        else if (*event.text.text >= 'A' && *event.text.text <= 'Z') n_player += *event.text.text;
+        else if (*event.text.text >= '0' && *event.text.text <= '9') n_player += *event.text.text;
+        if (*event.text.text == ' ') n_player += *event.text.text;
+    }
+    else if (n_player1.length() <= max_name_char && !name1_entered && mode == 2 && name_entered){
+        if (*event.text.text >= 'a' && *event.text.text <= 'z') n_player1 += *event.text.text;
+        else if (*event.text.text >= 'A' && *event.text.text <= 'Z') n_player1 += *event.text.text;
+        else if (*event.text.text >= '0' && *event.text.text <= '9') n_player1 += *event.text.text;
+        if (*event.text.text == ' ') n_player1 += *event.text.text;
+    }
+}
 
 void Select::KeyDown(SDL_Scancode scancode){
+    if ((!name_entered && mode == 1) || (!name1_entered && mode == 2)) {
+        switch(scancode){
+            case SDL_SCANCODE_BACKSPACE:
+                if (!name_entered && n_player.length() > 0) n_player.erase(n_player.end()-1, n_player.end());
+                else if (!name1_entered && n_player1.length() > 0) n_player1.erase(n_player1.end()-1, n_player1.end());
+                break;
+            case SDL_SCANCODE_RETURN:
+                if (!name_entered) name_entered = true;
+                else if (!name1_entered) name1_entered = true;
+                name_box.y = 600;
+                break;
+            case SDL_SCANCODE_ESCAPE:
+                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                return;
+                break;
+        }
+        return;
+    }
     if (skin_has_been_selected == false){
         switch (scancode){
             case SDL_SCANCODE_LEFT:
@@ -246,10 +296,16 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     Rockstand_merchant_idle.SetProp("Rockstand_merchant", 0, 40, 100);
     Left_platform = new GameObject(new Properties("Left_platform", 0, 506, 370, 40, ID, 1));
     Right_platform = new GameObject(new Properties("Right_platform", 830, 506, 370, 40, ID, 1));
-
+    TTF_Font* font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 20);
+    name = Select::GetInstance()->n_player;
+    if (Select::GetInstance()->mode == 2) name1 = Select::GetInstance()->n_player1;
+    TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, name.c_str(), {255, 255, 0});
+    if (Select::GetInstance()->mode == 2) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, name1.c_str(), {255, 255, 0});
+    TTF_CloseFont(font);
     player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
     if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
+
     Planet* moon = 
     new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
     countSun = 0;
@@ -264,6 +320,8 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
 Scene_0::~Scene_0(){
     TTF_CloseFont(freedom);
     SDL_DestroyTexture(hours_texture);
+    SDL_DestroyTexture(player_name);
+    SDL_DestroyTexture(player1_name);
 }
 void Scene_0::Update(float& dt){
     spawnSun += dt;
@@ -313,6 +371,10 @@ void Scene_0::Render(){
     RenderSamuraiMerchant();
     Rockstand_merchant_idle.Render(536, hover_platform->getCollider().GetBox().y-64, 128, 64);
     GameObjectHandler::GetInstance()->Render();
+    MakeRectFromTexture(&player_name, &p_rect, Player::GetInstance()->getTransform()->x, Player::GetInstance()->getTransform()->y-20);
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &p_rect);
+    if (Player1::GetInstance() != nullptr) MakeRectFromTexture(&player1_name, &p1_rect, Player1::GetInstance()->getTransform()->x, Player1::GetInstance()->getTransform()->y-20);
+    if (Player1::GetInstance() != nullptr) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &p1_rect);
 }
 
 void Scene_0::UpdateIdle(float dt){
