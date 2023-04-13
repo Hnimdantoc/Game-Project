@@ -9,7 +9,7 @@ class Scene
 {
 public:
     Scene();
-    ~Scene();
+    virtual ~Scene();
     virtual void Update(float& dt);
     virtual void Render();
     virtual void Clean(int ID);

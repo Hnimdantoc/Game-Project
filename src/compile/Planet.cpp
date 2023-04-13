@@ -249,7 +249,7 @@ void Planet::MoonCollision(){
 
 void Planet::Render(){
     _Animation->Render(_Transform->x, _Transform->y, w, h, scale);
-    _Collider.Render();
+    //_Collider.Render();
 }
 
 void Planet::Clean(){

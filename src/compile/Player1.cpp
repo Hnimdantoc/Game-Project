@@ -34,7 +34,7 @@ Player1::Player1(Properties* prop){
     /*animateSpeed: Time per animation frame. The lower the speed the faster the animation
     --------------change this-----\/---------------------------------------------------*/
     frameCount = prop->frameCount;
-    _Animation->SetProp(ID, 0, frameCount, 150);
+    _Animation->SetProp(ID, 0, frameCount-2, 150);
     player1Action.first = STATE::STANDING;
     player1Action.second = FACE::RIGHT;
     SetPrevState();
@@ -60,57 +60,12 @@ void Player1::Render(){
     // Draw Player1
     _Animation->Render(_Transform->x, _Transform->y, w, h, PLAYER_SCALE);
     // Visualize collision box
-    _Collider.Render();
+    //_Collider.Render();
     if (!(JumpDust1.GetPrevFrame() == 4 && JumpDust1.GetFrame() == 0) && jumps == 1) JumpDust1.Render(j1_x, j1_y, 23, 5, 2);
     if (!(JumpDust2.GetPrevFrame() == 4 && JumpDust2.GetFrame() == 0) && jumps == 0) JumpDust2.Render(j2_x, j2_y, 23, 5, 2);
 }
 
-void Player1::Update(float& dt){
-    if (prevAction != player1Action) _NeedChangeState = true;
-    if (_NeedChangeState){
-        _NeedChangeState = false;
-        switch (player1Action.first){
-            case STATE::STANDING:
-                _Animation->SetProp(ID, 0, frameCount, 150);
-                break;
-            case STATE::RUNNING:
-                _Animation->SetProp(ID, 1, frameCount, 80);
-                break;
-            case STATE::JUMPING:
-                break;
-        }
-        if (player1Action.second == FACE::LEFT) _Animation->SetFlip(SDL_FLIP_HORIZONTAL);
-        SetPrevState();
-    }
-    if (allowInput){
-        if (Input::GetInstance()->GetKeyDown(PLAYER1_GO_RIGHT_SCANCODE)){
-            if (Input::GetInstance()->GetKeyDown(PLAYER1_GO_LEFT_SCANCODE) && enableSmoothMovement){
-                _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
-                SetPrevState();
-                SetState(STATE::RUNNING, FACE::LEFT);
-                if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0 && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
-                    Player::GetInstance()->GetRigidBody()->applyForceX(-10000.0f);
-                }
-            }
-            else{
-                _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * FORWARD);
-                SetPrevState();
-                SetState(STATE::RUNNING, FACE::RIGHT);
-                if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0 && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
-                    Player::GetInstance()->GetRigidBody()->applyForceX(10000.0f);
-                }
-            }
-        }
-        else if (Input::GetInstance()->GetKeyDown(PLAYER1_GO_LEFT_SCANCODE)){
-            _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
-            SetPrevState();
-            SetState(STATE::RUNNING, FACE::LEFT);
-            if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0 && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
-                Player::GetInstance()->GetRigidBody()->applyForceX(-10000.0f);
-            }
-        }
-    }
-    // Physics
+void Player1::Physics(float& dt){
     if (!dashing) _RigidBody->Update(dt);
     else {
         Player1::GetInstance()->GetRigidBody()->setPosition().y = Player1::GetInstance()->GetRigidBody()->getVelocity().y * dt;
@@ -127,14 +82,75 @@ void Player1::Update(float& dt){
             Player1::GetInstance()->GetRigidBody()->resetPosition();
         }
     }
+    if (!inAir && _RigidBody->getVelocity().x == 0) SetState(STATE::STANDING, player1Action.second);
     _RigidBody->resetForceX();
     Player1::GetInstance()->getTransform()->translateVector({_RigidBody->getPosition().x, _RigidBody->getPosition().y});
+    // Update Collision box
     Player1::GetInstance()->UpdateCollider();
+}
+
+
+void Player1::Update(float& dt){
+    if (prevAction != player1Action) _NeedChangeState = true;
+    if (_NeedChangeState){
+        _NeedChangeState = false;
+        switch (player1Action.first){
+            case STATE::STANDING:
+                _Animation->SetProp(ID, 0, frameCount-2, 150);
+                break;
+            case STATE::RUNNING:
+                _Animation->SetProp(ID, 1, frameCount, 80);
+                break;
+            case STATE::PUSHING:
+                _Animation->SetProp(ID, 2, frameCount, 80);
+                break;
+            case STATE::JUMPING:
+                _Animation->SetProp(ID, 3, frameCount+2, 70);
+                break;
+        }
+        if (player1Action.second == FACE::LEFT) _Animation->SetFlip(SDL_FLIP_HORIZONTAL);
+        SetPrevState();
+    }
+    if (allowInput){
+        if (Input::GetInstance()->GetKeyDown(PLAYER1_GO_RIGHT_SCANCODE)){
+            if (Input::GetInstance()->GetKeyDown(PLAYER1_GO_LEFT_SCANCODE) && enableSmoothMovement){
+                _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
+                Physics(dt);
+                SetPrevState();
+                SetState(STATE::RUNNING, FACE::LEFT);
+                if (Player::GetInstance() != nullptr && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
+                    if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0) Player::GetInstance()->GetRigidBody()->applyForceX(-10000.0f);
+                    SetState(STATE::PUSHING, FACE::LEFT);
+                }
+            }
+            else{
+                _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * FORWARD);
+                Physics(dt);
+                SetPrevState();
+                SetState(STATE::RUNNING, FACE::RIGHT);
+                if (Player::GetInstance() != nullptr && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
+                    if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0) Player::GetInstance()->GetRigidBody()->applyForceX(10000.0f);
+                    SetState(STATE::PUSHING, FACE::RIGHT);
+                }
+            }
+        }
+        else if (Input::GetInstance()->GetKeyDown(PLAYER1_GO_LEFT_SCANCODE)){
+            _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
+            Physics(dt);
+            SetPrevState();
+            SetState(STATE::RUNNING, FACE::LEFT);
+            if (Player::GetInstance() != nullptr && CollisionHandler::GetInstance()->CheckCollision(_Collider, Player::GetInstance()->getCollider())){
+                    if (Player::GetInstance()->GetRigidBody()->getVelocity().x == 0) Player::GetInstance()->GetRigidBody()->applyForceX(-10000.0f);
+                    SetState(STATE::PUSHING, FACE::LEFT);
+            }
+        }
+        else Physics(dt);
+    }
+    else Physics(dt);
     // Update the Animation
     _Animation->Update(dt);
     if (!(JumpDust1.GetPrevFrame() == 4 && JumpDust1.GetFrame() == 0) && jumps == 1) JumpDust1.Update(dt);
     if (!(JumpDust2.GetPrevFrame() == 4 && JumpDust2.GetFrame() == 0) && jumps == 0) JumpDust2.Update(dt);
-    // Update Collision box
     CollisionHandler::GetInstance()->Player1Collisions(_Collider);
 }
 

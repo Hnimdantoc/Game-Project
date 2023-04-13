@@ -4,7 +4,7 @@
 #include "Timer.hpp"
 
 #define MAX_JUMP_HEIGHT 32 * 3
-#define JUMP_TIME 36 // jump time = 32 frame
+#define JUMP_TIME 36 // jump time = 36 frame
 
 #define MASS 1.0f
 #define GRAVITY 2.0f * MAX_JUMP_HEIGHT / ((JUMP_TIME/2.0f * SECONDS_PER_FRAME) * (JUMP_TIME/2.0f * SECONDS_PER_FRAME))

@@ -141,8 +141,8 @@ void CollisionHandler::Player1Collisions(Collider& player_rect){
                 return;
             }
             (*i)->Clean();
-            ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
             delete *i;
+            ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).erase(i);
         }
         else if (Player1::GetInstance()->GetRigidBody()->getVelocity().y >= 0){ 
             if (strcmp((*i)->GetID(), "Left_platform") == 0 && 

@@ -28,7 +28,7 @@ void GameObject::Update(float& dt){
 
 void GameObject::Render(){
     TextureManager::GetInstance()->Render(ID, _Transform->x, _Transform->y, w, h);
-    _Collider.Render();
+    //_Collider.Render();
 }
 
 void GameObject::Clean(){

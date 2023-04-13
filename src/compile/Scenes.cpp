@@ -5,35 +5,34 @@ Menu::Menu() : ID(MENU_SCENE) {
     SceneManager::GetInstance()->addScene(ID, this);
     static_instance = this;
     ChoosingMode = false;
-    font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 70);
-    title = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
 
-    TextureManager::GetInstance()->CreateTextureFromText(&Title, font, "T1 < DEFT", {0, 255, 0});
-    MakeRectFromTexture(&Title, &title_rect, 500, 0);
-    
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 200);
     TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {255, 255, 255});
-    MakeRectFromTexture(&Play, &play_rect, 500, 250);
+    MakeRectFromTexture(&Play, &play_rect, 790, 150);
+    TTF_CloseFont(font);
 
-    TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "OPTION", {255, 255, 0});
-    MakeRectFromTexture(&Option, &option_rect, 500, 350);
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 160);
 
-    TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "EXIT", {255, 255, 0});
-    MakeRectFromTexture(&Exit, &exit_rect, 500, 500);
+    TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "OPTION", {255, 255, 255});
+    MakeRectFromTexture(&Option, &option_rect, 750, 460);
 
-    TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "1", {255, 255, 0});
-    MakeRectFromTexture(&Mode_1, &mode_1_rect, play_rect.x - 50, 250);
+    TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "EXIT", {255, 255, 255});
+    MakeRectFromTexture(&Exit, &exit_rect, 910, 565);
+    TTF_CloseFont(font);
 
-    TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "2", {255, 255, 0});
-    MakeRectFromTexture(&Mode_2, &mode_2_rect, play_rect.x - 50, 300);
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
 
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "Single", {255, 255, 255});
+    MakeRectFromTexture(&Mode_1, &mode_1_rect, 858, 290);
+
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {255, 255, 255});
+    MakeRectFromTexture(&Mode_2, &mode_2_rect, 880, 384);
     currentRect = &play_rect;
     vectorRect.push_back({&play_rect, &option_rect, &exit_rect});
     vectorRect.push_back({&mode_1_rect, &mode_2_rect});
 }
 Menu::~Menu(){
     TTF_CloseFont(font);
-    TTF_CloseFont(title);
-    SDL_DestroyTexture(Title);
     SDL_DestroyTexture(Play);
     SDL_DestroyTexture(Option);
     SDL_DestroyTexture(Exit);
@@ -44,8 +43,54 @@ void Menu::Update(float& dt){
     GameObjectHandler::GetInstance()->Update(dt);
 }
 void Menu::Render(){
-    TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
-    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Title, nullptr, &title_rect);
+    TextureManager::GetInstance()->Render("menu_background", 0, 0, WIDTH, HEIGHT);
+    TTF_CloseFont(font);
+    SDL_DestroyTexture(Play);
+    SDL_DestroyTexture(Option);
+    SDL_DestroyTexture(Exit);
+    SDL_DestroyTexture(Mode_1);
+    SDL_DestroyTexture(Mode_2);
+    ////
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 200);
+    TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {255, 255, 255});
+    TTF_CloseFont(font);
+
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 160);
+    TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "OPTION", {255, 255, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "EXIT", {255, 255, 255});
+    TTF_CloseFont(font);
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "Single", {255, 255, 255});
+    
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {255, 255, 255});
+    TTF_CloseFont(font);
+    if (currentRect == &play_rect){
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 200);
+        SDL_DestroyTexture(Play);
+        TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {98, 153, 96});
+    }
+    else if (currentRect == &option_rect){
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 160);
+        SDL_DestroyTexture(Option);
+        TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "Option", {98, 153, 96});
+    }
+    else if (currentRect == &exit_rect){
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 160);
+        SDL_DestroyTexture(Exit);
+        TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "Exit", {98, 153, 96});
+    }
+    else if (currentRect == &mode_1_rect){
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
+        SDL_DestroyTexture(Mode_1);
+        TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "Single", {98, 153, 96});
+    }
+    else if (currentRect == &mode_2_rect){
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
+        SDL_DestroyTexture(Mode_2);
+        TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {98, 153, 96});
+    }
+    ///
+
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Play, nullptr, &play_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Option, nullptr, &option_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Exit, nullptr, &exit_rect);
@@ -116,6 +161,8 @@ Select::Select() : ID(SELECT_SCENE){
     TextureManager::GetInstance()->CreateTextureFromText(&thirty, font, "30", {0, 0, 0, 255});
     selected_minutes = thirty;
     TextureManager::GetInstance()->CreateTextureFromText(&forty_five, font, "45", {0, 0, 0, 255});
+    player_name = nullptr;
+    player1_name = nullptr;
     
     minute_box.x = 600;
     minute_box.y = 0;
@@ -129,6 +176,9 @@ Select::Select() : ID(SELECT_SCENE){
     vectorSkins.push_back("player");
     vectorSkins.push_back("player1");
     vectorSkins.push_back("player2");
+    vectorSkins.push_back("player3");
+    vectorSkins.push_back("player4");
+    vectorSkins.push_back("player5");
 }
 Select::~Select(){
     TTF_CloseFont(font);
@@ -155,9 +205,15 @@ void Select::Render(){
     if (n_player.length() > 0) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &temp);
     if (mode == 2 && n_player1.length() > 0) MakeRectFromTexture(&player1_name, &temp, 0, 600);
     if (mode == 2 && n_player1.length() > 0) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &temp);
-    if (n_player.length() > 0)SDL_DestroyTexture(player_name);
-    if (mode == 2 && n_player1.length() > 0) SDL_DestroyTexture(player1_name);
-
+    if (n_player.length() > 0) {
+        SDL_DestroyTexture(player_name);
+        player_name = nullptr;
+    }
+    if (mode == 2 && n_player1.length() > 0) {
+        SDL_DestroyTexture(player1_name);
+        player1_name = nullptr;
+    }
+    
     if ((mode == 1 && !name_entered) || (mode == 2 && !name1_entered)){
         SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &name_box);
     }
@@ -298,12 +354,14 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     Right_platform = new GameObject(new Properties("Right_platform", 830, 506, 370, 40, ID, 1));
     TTF_Font* font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 20);
     name = Select::GetInstance()->n_player;
+    player1_name = nullptr;
+    player_name = nullptr;
     if (Select::GetInstance()->mode == 2) name1 = Select::GetInstance()->n_player1;
     TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, name.c_str(), {255, 255, 0});
     if (Select::GetInstance()->mode == 2) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, name1.c_str(), {255, 255, 0});
     TTF_CloseFont(font);
-    player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
-    if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 0, 0, 32, 32, ID, 1, 0, 2.0f, 6));
+    player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 4, 2.0f, 6));
+    if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 1200-32*2, 0, 32, 32, ID, 1, 4, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
 
     Planet* moon = 
@@ -320,6 +378,7 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
 Scene_0::~Scene_0(){
     TTF_CloseFont(freedom);
     SDL_DestroyTexture(hours_texture);
+    SDL_DestroyTexture(days_texture);
     SDL_DestroyTexture(player_name);
     SDL_DestroyTexture(player1_name);
 }
@@ -331,7 +390,6 @@ void Scene_0::Update(float& dt){
         spawnSun = 0;
         countSun++;
     }
-    GameObjectHandler::GetInstance()->Update(dt);
     if (HOURS.first == 24) {
         DAYS++;
         countMoon = DAYS;
@@ -345,10 +403,39 @@ void Scene_0::Update(float& dt){
         if (HOURS.second == 0) end = "00";
         _time = front + ":" + end;
     }
+    GameObjectHandler::GetInstance()->Update(dt);
 }
 
 void Scene_0::Render(){
-    TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
+    if (HOURS.first >= 6 && HOURS.first <= 12) {
+        r = 208;
+        g = 214;
+        b = 228;
+    }
+    else if (HOURS.first >= 12 && HOURS.first <= 16) {
+        r = 228;
+        g = 226;
+        b = 208;
+    }
+    else if (HOURS.first >= 16 && HOURS.first <= 18) {
+        r = 228;
+        g = 218;
+        b = 208;
+    }
+    else if (HOURS.first >= 18 || HOURS.first <= 5) {
+        r = 211;
+        g = 228;
+        b = 208;
+    }
+    if (_r > r) _r-=0.1f;
+    else if (_r < r) _r+=0.1f;
+    if (_g > g) _g-=0.1f;
+    else if (_g < g) _g+=0.1f;
+    if (_b > b) _b-=0.1f;
+    else if (_b < b) _b+=0.1f;
+    SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), _r, _g, _b, 255);
+    SDL_RenderClear(Engine::GetInstance()->GetRenderer());
+    TextureManager::GetInstance()->Render("background_transparent", 0, 0, WIDTH, HEIGHT);
     /*---------------Draw days and hours-----------------------------------*/
     TextureManager::GetInstance()->CreateTextureFromText(&hours_texture, freedom, _time.c_str(), {255, 0, 0, 150});
     std::string days = "Day:";
@@ -446,15 +533,11 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
     if (scancode == SDL_SCANCODE_ESCAPE) {
         Player::GetInstance()->SetPrevState();
         Player::GetInstance()->NeedChangeState() = true;
-        if (Player::GetInstance()->GetState().second == RIGHT){
-            Player::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
-            Player::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
-        }
-        else if (Player::GetInstance()->GetState().second == LEFT){
+        if (Player::GetInstance()->GetState().first == RUNNING && Player::GetInstance()->GetState().second == LEFT){
             Player::GetInstance()->GetRigidBody()->applyAccelerationX(FORWARD * DECCELERATE_TO_ZERO);
             Player::GetInstance()->SetState(STATE::STANDING, FACE::LEFT);
         }
-        if (Player::GetInstance()->GetState().first == RUNNING && Player::GetInstance()->GetState().second == RIGHT){
+        else if (Player::GetInstance()->GetState().first == RUNNING && Player::GetInstance()->GetState().second == RIGHT){
             Player::GetInstance()->GetRigidBody()->applyAccelerationX(BACKWARD * DECCELERATE_TO_ZERO);
             Player::GetInstance()->SetState(STATE::STANDING, FACE::RIGHT);
         }

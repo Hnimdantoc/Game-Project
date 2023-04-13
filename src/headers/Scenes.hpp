@@ -23,14 +23,12 @@ private:
     int ID;
     bool ChoosingMode;
     TTF_Font* font;
-    TTF_Font* title;
     SDL_Texture* Play;
-    SDL_Texture* Title;
     SDL_Texture* Option;
     SDL_Texture* Exit;
     SDL_Texture* Mode_1;
     SDL_Texture* Mode_2;
-    SDL_Rect play_rect, option_rect, title_rect, exit_rect, mode_1_rect, mode_2_rect;
+    SDL_Rect play_rect, option_rect, exit_rect, mode_1_rect, mode_2_rect;
     std::vector <std::vector<SDL_Rect*>> vectorRect;
 public:
     Menu();
@@ -84,7 +82,8 @@ public:
     std::pair <int, int> HOURS;
 private:
     static Scene_0* static_instance;
-    int ID;
+    int ID, r = 211, g = 228, b = 208;
+    float _r = r, _g = g, _b = b;
     float spawnSun = 0;
     int countSun, countMoon;
     int samurai_x = 210, GO = 1;

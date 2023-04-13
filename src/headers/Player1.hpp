@@ -63,5 +63,6 @@ public:
 
     void Render();
     void Update(float& dt);
+    void Physics(float& dt);
     void Clean();
 };

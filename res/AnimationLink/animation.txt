@@ -1,7 +1,12 @@
-player res/Assests/human.png
-player1 res/Assests/human1.png
-player2 res/Assests/human2.png
+player res/Assests/monster_pink.png
+player1 res/Assests/monster_orange.png
+player2 res/Assests/owl_grey.png
+player3 res/Assests/owl_ocean.png
+player4 res/Assests/dude_blue.png
+player5 res/Assests/dude_purple.png
 background res/backgrounds/background.png
+background_transparent res/backgrounds/background_transparent.png
+menu_background res/backgrounds/menu_background.png
 Left_platform res/Assests/Left_platform.png
 Right_platform res/Assests/Right_platform.png
 Hover_platform res/Assests/Hover_platform.png
