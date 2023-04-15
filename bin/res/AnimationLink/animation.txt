@@ -7,6 +7,7 @@ player5 res/Assests/dude_purple.png
 background res/backgrounds/background.png
 background_transparent res/backgrounds/background_transparent.png
 select_1 res/backgrounds/select_1.png
+select_2 res/backgrounds/select_2.png
 menu_background res/backgrounds/menu_background.png
 Left_platform res/Assests/Left_platform.png
 Right_platform res/Assests/Right_platform.png
