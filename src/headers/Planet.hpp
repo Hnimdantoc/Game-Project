@@ -12,7 +12,15 @@ public:
     Planet();
     Planet(Properties* prop);
     ~Planet();
-
+    inline void UpdateCollider(){
+        if (strcmp(ID, "moon") == 0) {
+            _Collider.GetBox().x = _Transform->x + 5;
+            _Collider.GetBox().y = _Transform->y + 5;
+        }else {
+            _Collider.GetBox().x = _Transform->x;
+            _Collider.GetBox().y = _Transform->y;
+        }
+    }
     void SunCollision();
     void MoonCollision();
 

@@ -9,7 +9,7 @@
 #include "Collider.hpp"
 
 
-#define OFFSET 15
+#define OFFSET 18
 
 class Properties
 {

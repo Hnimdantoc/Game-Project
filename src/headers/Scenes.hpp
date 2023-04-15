@@ -50,10 +50,14 @@ public:
 private:
     static Select* static_instance;
     int ID;
+    float change = 0, delta = 1;
+    Uint8 blink = 0x60; 
+    const char* bg;
     bool skin_has_been_selected, skin1_has_been_selected, name_entered = false, name1_entered = false;
-    int Skins_iterator = 0, Skins1_iterator = 0, Minute_iterator = 1, max_name_char = 10;
+    int Skins_iterator = 0, Minute_iterator = 1, max_name_char = 10;
+    Animation player_idle, player1_idle;
     TTF_Font* font;
-    SDL_Rect minute_box, name_box;
+    SDL_Rect minute_box;
     SDL_Texture* player_name;
     SDL_Texture* player1_name;
     SDL_Texture* fifteen;

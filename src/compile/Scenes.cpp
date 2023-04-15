@@ -52,42 +52,42 @@ void Menu::Render(){
     SDL_DestroyTexture(Mode_2);
     ////
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 200);
-    TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {255, 255, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {79, 83, 86});
     TTF_CloseFont(font);
 
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 160);
-    TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "OPTION", {255, 255, 255});
-    TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "EXIT", {255, 255, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "OPTION", {79, 83, 86});
+    TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "EXIT", {79, 83, 86});
     TTF_CloseFont(font);
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
-    TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "Single", {255, 255, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "Single", {79, 83, 86});
     
-    TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {255, 255, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {79, 83, 86});
     TTF_CloseFont(font);
     if (currentRect == &play_rect){
         font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 200);
         SDL_DestroyTexture(Play);
-        TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {98, 153, 96});
+        TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {26, 72, 86});
     }
     else if (currentRect == &option_rect){
         font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 160);
         SDL_DestroyTexture(Option);
-        TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "Option", {98, 153, 96});
+        TextureManager::GetInstance()->CreateTextureFromText(&Option, font, "Option", {26, 72, 86});
     }
     else if (currentRect == &exit_rect){
         font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 160);
         SDL_DestroyTexture(Exit);
-        TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "Exit", {98, 153, 96});
+        TextureManager::GetInstance()->CreateTextureFromText(&Exit, font, "Exit", {26, 72, 86});
     }
     else if (currentRect == &mode_1_rect){
         font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
         SDL_DestroyTexture(Mode_1);
-        TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "Single", {98, 153, 96});
+        TextureManager::GetInstance()->CreateTextureFromText(&Mode_1, font, "Single", {26, 72, 86});
     }
     else if (currentRect == &mode_2_rect){
         font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 100);
         SDL_DestroyTexture(Mode_2);
-        TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {98, 153, 96});
+        TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {26, 72, 86});
     }
     ///
 
@@ -151,24 +151,24 @@ Select::Select() : ID(SELECT_SCENE){
     SceneManager::GetInstance()->addScene(ID, this);
     static_instance = this;
 
-    font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 40);
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/mono.ttf", 60);
     if (Menu::GetInstance()->mode_2) mode = 2;
     else mode = 1;
     skin_has_been_selected = false;
     skin1_has_been_selected = false;
     minute_per_sun = 30;
-    TextureManager::GetInstance()->CreateTextureFromText(&fifteen, font, "15", {0, 0, 0, 255});
-    TextureManager::GetInstance()->CreateTextureFromText(&thirty, font, "30", {0, 0, 0, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&fifteen, font, "hard", {0, 0, 0, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&thirty, font, "medium", {0, 0, 0, 255});
     selected_minutes = thirty;
-    TextureManager::GetInstance()->CreateTextureFromText(&forty_five, font, "45", {0, 0, 0, 255});
+    TextureManager::GetInstance()->CreateTextureFromText(&forty_five, font, "easy", {0, 0, 0, 255});
     player_name = nullptr;
     player1_name = nullptr;
-    
+    player_idle.SetProp("player", 0, 4, 150);
+    player1_idle.SetProp("player", 0, 4, 150);
     minute_box.x = 600;
-    minute_box.y = 0;
+    minute_box.y = 10;
     SDL_QueryTexture(thirty, nullptr, nullptr, &minute_box.w, &minute_box.h);
-
-    name_box = {0, 300, 300, 100};
+    bg = (mode == 1) ? "select_1" : "select_2";
 
     vectorMinute.push_back(fifteen);
     vectorMinute.push_back(thirty);
@@ -190,47 +190,71 @@ Select::~Select(){
     SDL_DestroyTexture(player1_name);
 }
 void Select::Update(float& dt){
-    if (n_player.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, n_player.c_str(), {150, 0, 255});
-    if (mode == 2 && n_player1.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, n_player1.c_str(), {150, 0, 255});
+    change+=delta;
+    if (change >= 1.0f) {
+        blink += 0x01;
+        change = 0;
+    }
+    else if (change <= -1.0f) {
+        blink -= 0x01;
+        change = 0;
+    }
+    if (blink == 0x64 && delta > 0) delta *= -1;
+    else if (blink == 0x10 && delta < 0) delta *= -1;
+    SDL_Color temp = {0, 0, 0, blink};
+    if (n_player.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, n_player.c_str(), {19, 71, 22});
+    else if (n_player.length() == 0 && !skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, "enter name", temp);
+    if (mode == 2 && n_player1.length() > 0 && skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, n_player1.c_str(), {19, 71, 22});
+    else if (mode == 2 && n_player1.length() == 0 && skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, "enter name", temp);
+    player_idle.Update(dt);
+    player1_idle.Update(dt);
 }
 void Select::Render(){
-    TextureManager::GetInstance()->Render("background", 0, 0, WIDTH, HEIGHT);
-    TextureManager::GetInstance()->Render(selected_skin.c_str(), 0, 0, 32, 32, 4.0f);
-    if (mode == 2) TextureManager::GetInstance()->Render(selected_skin1.c_str(), 0, 400, 32, 32, 4.0f);
-    
+    TextureManager::GetInstance()->Render(bg, 0, 0, WIDTH, HEIGHT);
+    if (mode == 1) player_idle.Render(485, 220, 32, 32, 8);
+    else if (mode == 2 && !skin_has_been_selected) player_idle.Render(485, 220, 32, 32, 8);
+    if (mode == 2) {
+        player_idle.Render(77, 70, 32, 32, 4);
+        if (skin_has_been_selected) {
+            player1_idle.Render(1015, 70, 32, 32, 4);
+            player1_idle.Render(485, 220, 32, 32, 8);
+        }
+        
+    }
+    SDL_SetRenderDrawBlendMode(Engine::GetInstance()->GetRenderer(), SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), 254, 225, 184, 127);
+    TextureManager::GetInstance()->Render(vectorSkins[((Skins_iterator == 0) ? vectorSkins.size() - 1 : Skins_iterator-1)].c_str(), 270, 328, 32, 32, 4.0f);
+    TextureManager::GetInstance()->Render(vectorSkins[((Skins_iterator == vectorSkins.size() - 1) ?  0 : Skins_iterator+1)].c_str(), 820, 328, 32, 32, 4.0f);
+    SDL_Rect temp = {270, 328, 32*4, 32*4};
+    SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(), &temp);
+    temp = {820, 328, 32*4, 32*4};
+    SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(), &temp);
+
+    SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), 0, 0, 0, 255);
+    SDL_QueryTexture(selected_minutes, nullptr, nullptr, &minute_box.w, &minute_box.h);
+    minute_box.x = (WIDTH - minute_box.w) / 2;
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), selected_minutes, nullptr, &minute_box);
 
-    SDL_Rect temp;
-    if (n_player.length() > 0) MakeRectFromTexture(&player_name, &temp, 0, 300);
-    if (n_player.length() > 0) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &temp);
-    if (mode == 2 && n_player1.length() > 0) MakeRectFromTexture(&player1_name, &temp, 0, 600);
-    if (mode == 2 && n_player1.length() > 0) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &temp);
-    if (n_player.length() > 0) {
+    MakeRectFromTexture(&player_name, &temp, 0, 128);
+    temp.x = (WIDTH - temp.w) / 2;
+    if (mode == 1) {
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &temp);
         SDL_DestroyTexture(player_name);
         player_name = nullptr;
     }
-    if (mode == 2 && n_player1.length() > 0) {
-        SDL_DestroyTexture(player1_name);
-        player1_name = nullptr;
-    }
-    
-    if ((mode == 1 && !name_entered) || (mode == 2 && !name1_entered)){
-        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &name_box);
-    }
-    
-    if ((!skin_has_been_selected && name_entered && mode == 1) || (!skin_has_been_selected && name_entered && name1_entered && mode == 2)) {
-        SDL_Rect a = {0, 0, 32*4, 32*4};
-        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
-    }
-    if (!skin1_has_been_selected && mode == 2 && name1_entered && name_entered){
-        SDL_Rect a = {0, 400, 32*4, 32*4};
-        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &a);
-    }
-    if (mode == 1 && skin_has_been_selected && name_entered) {
-        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
-    }
-    else if (mode == 2 && skin_has_been_selected && skin1_has_been_selected && name1_entered && name_entered) {
-        SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), &minute_box);
+    if (mode == 2) {
+        if (skin_has_been_selected){
+            MakeRectFromTexture(&player1_name, &temp, 0, 128);
+            temp.x = (WIDTH - temp.w) / 2;
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &temp);
+            SDL_DestroyTexture(player1_name);
+            player1_name = nullptr;
+        }
+        else {
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &temp);
+            SDL_DestroyTexture(player_name);
+            player_name = nullptr;
+        }
     }
 }
 
@@ -240,8 +264,9 @@ void Select::KeyText(SDL_Event event){
         else if (*event.text.text >= 'A' && *event.text.text <= 'Z') n_player += *event.text.text;
         else if (*event.text.text >= '0' && *event.text.text <= '9') n_player += *event.text.text;
         if (*event.text.text == ' ') n_player += *event.text.text;
+        return;
     }
-    else if (n_player1.length() <= max_name_char && !name1_entered && mode == 2 && name_entered){
+    if (mode == 2 && skin_has_been_selected && n_player1.length() <= max_name_char && !name1_entered && name_entered){
         if (*event.text.text >= 'a' && *event.text.text <= 'z') n_player1 += *event.text.text;
         else if (*event.text.text >= 'A' && *event.text.text <= 'Z') n_player1 += *event.text.text;
         else if (*event.text.text >= '0' && *event.text.text <= '9') n_player1 += *event.text.text;
@@ -250,7 +275,7 @@ void Select::KeyText(SDL_Event event){
 }
 
 void Select::KeyDown(SDL_Scancode scancode){
-    if ((!name_entered && mode == 1) || (!name1_entered && mode == 2)) {
+    if (!name_entered || (mode == 2 && skin_has_been_selected && !name1_entered)) {
         switch(scancode){
             case SDL_SCANCODE_BACKSPACE:
                 if (!name_entered && n_player.length() > 0) n_player.erase(n_player.end()-1, n_player.end());
@@ -259,7 +284,7 @@ void Select::KeyDown(SDL_Scancode scancode){
             case SDL_SCANCODE_RETURN:
                 if (!name_entered) name_entered = true;
                 else if (!name1_entered) name1_entered = true;
-                name_box.y = 600;
+                Skins_iterator = 0;
                 break;
             case SDL_SCANCODE_ESCAPE:
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
@@ -268,20 +293,23 @@ void Select::KeyDown(SDL_Scancode scancode){
         }
         return;
     }
-    if (skin_has_been_selected == false){
+    if (!skin_has_been_selected){
         switch (scancode){
             case SDL_SCANCODE_LEFT:
-                Skins_iterator--;
-                if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
-                selected_skin = vectorSkins[Skins_iterator];
-                break;
-            case SDL_SCANCODE_RIGHT:
                 Skins_iterator++;
                 if (Skins_iterator == vectorSkins.size()) Skins_iterator = 0;
                 selected_skin = vectorSkins[Skins_iterator];
+                player_idle.SetProp(selected_skin.c_str(), 0, 4, 150);
+                break;
+            case SDL_SCANCODE_RIGHT:
+                Skins_iterator--;
+                if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
+                selected_skin = vectorSkins[Skins_iterator];
+                player_idle.SetProp(selected_skin.c_str(), 0, 4, 150);
                 break;
             case SDL_SCANCODE_RETURN:
                 skin_has_been_selected = true;
+                if (mode == 2) Skins_iterator = 0;
                 return;
                 break;
             case SDL_SCANCODE_ESCAPE:
@@ -289,18 +317,21 @@ void Select::KeyDown(SDL_Scancode scancode){
                 return;
                 break;
         }
+        return;
     }
-    if (!skin1_has_been_selected && mode == 2){
+    if (!skin1_has_been_selected && skin_has_been_selected && mode == 2 && name1_entered){
         switch (scancode){
             case SDL_SCANCODE_A:
-                Skins1_iterator--;
-                if (Skins1_iterator < 0) Skins1_iterator = vectorSkins.size()-1;
-                selected_skin1 = vectorSkins[Skins1_iterator];
+                Skins_iterator--;
+                if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
+                selected_skin1 = vectorSkins[Skins_iterator];
+                player1_idle.SetProp(selected_skin1.c_str(), 0, 4, 150);
                 break;
             case SDL_SCANCODE_D:
-                Skins1_iterator++;
-                if (Skins1_iterator == vectorSkins.size()) Skins1_iterator = 0;
-                selected_skin1 = vectorSkins[Skins1_iterator];
+                Skins_iterator++;
+                if (Skins_iterator == vectorSkins.size()) Skins_iterator = 0;
+                selected_skin1 = vectorSkins[Skins_iterator];
+                player1_idle.SetProp(selected_skin1.c_str(), 0, 4, 150);
                 break;
             case SDL_SCANCODE_RETURN:
                 skin1_has_been_selected = true;
@@ -311,22 +342,23 @@ void Select::KeyDown(SDL_Scancode scancode){
                 return;
                 break;
         }
+        return;
     }
     if ((skin_has_been_selected && mode == 1) || (mode == 2 && skin_has_been_selected && skin1_has_been_selected)) {
         switch (scancode){
             case SDL_SCANCODE_LEFT:
-                Select::GetInstance()->Minute_iterator--;
-                Select::GetInstance()->minute_per_sun-=15;
-                if (Select::GetInstance()->Minute_iterator < 0) Select::GetInstance()->Minute_iterator = Select::GetInstance()->vectorMinute.size()-1;
-                if (Select::GetInstance()->minute_per_sun == 0) Select::GetInstance()->minute_per_sun = 45;
-                Select::GetInstance()->selected_minutes = Select::GetInstance()->vectorMinute[Select::GetInstance()->Minute_iterator];
+                Minute_iterator++;
+                minute_per_sun += 15;
+                if (Minute_iterator == vectorMinute.size()) Minute_iterator = 0;
+                if (minute_per_sun == 60) minute_per_sun = 15;
+                selected_minutes = vectorMinute[Minute_iterator];
                 break;
             case SDL_SCANCODE_RIGHT:
-                Select::GetInstance()->Minute_iterator++;
-                Select::GetInstance()->minute_per_sun += 15;
-                if (Select::GetInstance()->Minute_iterator == Select::GetInstance()->vectorMinute.size()) Select::GetInstance()->Minute_iterator = 0;
-                if (Select::GetInstance()->minute_per_sun == 60) Select::GetInstance()->minute_per_sun = 0;
-                Select::GetInstance()->selected_minutes = Select::GetInstance()->vectorMinute[Select::GetInstance()->Minute_iterator];
+                Minute_iterator--;
+                minute_per_sun-=15;
+                if (Minute_iterator < 0) Minute_iterator = vectorMinute.size()-1;
+                if (minute_per_sun == 0) minute_per_sun = 45;
+                selected_minutes = vectorMinute[Minute_iterator];
                 break;
             case SDL_SCANCODE_RETURN:
                 SceneManager::GetInstance()->ChangeScene(PLAYSCENE);
@@ -352,14 +384,18 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     Rockstand_merchant_idle.SetProp("Rockstand_merchant", 0, 40, 100);
     Left_platform = new GameObject(new Properties("Left_platform", 0, 506, 370, 40, ID, 1));
     Right_platform = new GameObject(new Properties("Right_platform", 830, 506, 370, 40, ID, 1));
-    TTF_Font* font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 20);
+    TTF_Font* font = TextureManager::GetInstance()->LoadFont("res/Fonts/mono.ttf", 20);
     name = Select::GetInstance()->n_player;
+    if (Select::GetInstance()->mode == 2) name1 = Select::GetInstance()->n_player1;
     player1_name = nullptr;
     player_name = nullptr;
-    if (Select::GetInstance()->mode == 2) name1 = Select::GetInstance()->n_player1;
-    TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, name.c_str(), {255, 255, 0});
-    if (Select::GetInstance()->mode == 2) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, name1.c_str(), {255, 255, 0});
+    if (Select::GetInstance()->mode == 2) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, name1.c_str(), {0, 0, 0});
+    if (name == "" && Select::GetInstance()->mode == 1) name = "player";
+    else if (name == "" && Select::GetInstance()->mode == 2) name = "player 1";
+    if (name1 == "" && Select::GetInstance()->mode == 2) name1 = "player 2";
+    TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, name.c_str(), {0, 0, 0});
     TTF_CloseFont(font);
+
     player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 4, 2.0f, 6));
     if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 1200-32*2, 0, 32, 32, ID, 1, 4, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
@@ -427,12 +463,9 @@ void Scene_0::Render(){
         g = 228;
         b = 208;
     }
-    if (_r > r) _r-=0.1f;
-    else if (_r < r) _r+=0.1f;
-    if (_g > g) _g-=0.1f;
-    else if (_g < g) _g+=0.1f;
-    if (_b > b) _b-=0.1f;
-    else if (_b < b) _b+=0.1f;
+    _r += (_r > r) ? -0.1f : ((_r < r) ? 0.1f : 0);
+    _g += (_g > g) ? -0.1f : ((_g < g) ? 0.1f : 0);
+    _b += (_b > b) ? -0.1f : ((_b < b) ? 0.1f : 0);
     SDL_SetRenderDrawColor(Engine::GetInstance()->GetRenderer(), _r, _g, _b, 255);
     SDL_RenderClear(Engine::GetInstance()->GetRenderer());
     TextureManager::GetInstance()->Render("background_transparent", 0, 0, WIDTH, HEIGHT);
@@ -458,7 +491,7 @@ void Scene_0::Render(){
     RenderSamuraiMerchant();
     Rockstand_merchant_idle.Render(536, hover_platform->getCollider().GetBox().y-64, 128, 64);
     GameObjectHandler::GetInstance()->Render();
-    MakeRectFromTexture(&player_name, &p_rect, Player::GetInstance()->getTransform()->x, Player::GetInstance()->getTransform()->y-20);
+    MakeRectFromTexture(&player_name, &p_rect, Player::GetInstance()->getTransform()->x + 32 - p_rect.w/2, Player::GetInstance()->getTransform()->y-20);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &p_rect);
     if (Player1::GetInstance() != nullptr) MakeRectFromTexture(&player1_name, &p1_rect, Player1::GetInstance()->getTransform()->x, Player1::GetInstance()->getTransform()->y-20);
     if (Player1::GetInstance() != nullptr) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &p1_rect);
@@ -500,12 +533,12 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
             Player::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
             Player::GetInstance()->lastJump = SDL_GetTicks();
             Player::GetInstance()->j1_x = Player::GetInstance()->getTransform()->x+5;
-            Player::GetInstance()->j1_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
+            Player::GetInstance()->j1_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h + OFFSET - 5;
         }
         else {
             Player::GetInstance()->JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
             Player::GetInstance()->j2_x = Player::GetInstance()->getTransform()->x+5;
-            Player::GetInstance()->j2_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h-6;
+            Player::GetInstance()->j2_y = Player::GetInstance()->getTransform()->y + Player::GetInstance()->getCollider().GetBox().h + OFFSET - 5;
         }
         //Planet* sun = new Planet(new Properties("sun", 592, 2, 48, 48, ID, 1, 0, 1/3.0f, 9));
         //Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));

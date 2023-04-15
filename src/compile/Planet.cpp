@@ -21,14 +21,18 @@ Planet::Planet(Properties* prop){
     _RigidBody->setGravity(0.0f);
     srand(time(NULL));
     move = dir[rand() % dir.size()];
-    if (strcmp(ID, "moon") == 0) {
-        _RigidBody->setMass(2.0f);
-        move = {move.x * 0.75f, move.y * 0.75f};
-    }
     _Rect.x = _Transform->x;
     _Rect.y = _Transform->y;
     _Rect.w = w * prop->scale;
     _Rect.h = h * prop->scale;
+    if (strcmp(ID, "moon") == 0) {
+        _RigidBody->setMass(2.0f);
+        move = {move.x * 0.75f, move.y * 0.75f};
+        _Rect.x = _Transform->x + 5;
+        _Rect.y = _Transform->y + 5;
+        _Rect.w = w * prop->scale - 5*2;
+        _Rect.h = h * prop->scale - 5*2;
+    }
     _Collider = Collider(_Rect);
     delete prop;
 }
@@ -149,13 +153,13 @@ void Planet::MoonCollision(){
     if (_Collider.GetBox().x <= 0 || _Collider.GetBox().x >= WIDTH - _Collider.GetBox().w) {
         move.x *= -1;
         if (_Collider.GetBox().x <= 0) _Transform->x = 1;
-        else _Transform->x = WIDTH - _Collider.GetBox().w - 1;
+        else _Transform->x = WIDTH - _Collider.GetBox().w - 1 - 5;
     }
     UpdateCollider();
     if (_Collider.GetBox().y <= 0 || _Collider.GetBox().y >= HEIGHT - _Collider.GetBox().h) {
         move.y *= -1;
         if (_Collider.GetBox().y <= 0) _Transform->y = 1;
-        else _Transform->y = HEIGHT - _Collider.GetBox().h - 1;
+        else _Transform->y = HEIGHT - _Collider.GetBox().h - 1 - 5;
     }
     for (std::set<GameObject*, custom_set>::iterator i = ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).begin(); i != ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).end(); i++){
         if (*i == this) continue;
@@ -163,11 +167,11 @@ void Planet::MoonCollision(){
             if (strcmp((*i)->GetID(), "Left_platform") == 0){
                 if (_Collider.GetBox().y <= (*i)->getCollider().GetBox().y - _Collider.GetBox().h + speed*2){
                     move.y *= -1;
-                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1;
+                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1 - 5;
                 }
                 else if (_Collider.GetBox().y >= (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h - speed*2){
                     move.y *= -1;
-                    _Transform->y = (*i)->getCollider().GetBox().y+ (*i)->getCollider().GetBox().h + 1;
+                    _Transform->y = (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h + 1;
                 }
                 if (_Collider.GetBox().x >= (*i)->getCollider().GetBox().x+ (*i)->getCollider().GetBox().w - speed*2){
                     move.x *= -1;
@@ -177,7 +181,7 @@ void Planet::MoonCollision(){
             else if (strcmp((*i)->GetID(), "Right_platform") == 0){
                 if (_Collider.GetBox().y <= (*i)->getCollider().GetBox().y - _Collider.GetBox().h + speed*2){
                     move.y *= -1;
-                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1;
+                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1 - 5;
                 }
                 else if (_Collider.GetBox().y >= (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h - speed*2){
                     move.y *= -1;
@@ -185,13 +189,13 @@ void Planet::MoonCollision(){
                 }
                 if (_Collider.GetBox().x + _Collider.GetBox().w <= (*i)->getCollider().GetBox().x + speed*2){
                     move.x *= -1;
-                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - 1;
+                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - 1 - 5;
                 }
             }
             else if (strcmp((*i)->GetID(), "Hover_platform") == 0){
                 if (_Collider.GetBox().y + _Collider.GetBox().h <= (*i)->getCollider().GetBox().y + speed*2){
                     move.y *= -1;
-                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1;
+                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1 - 5;
                 }
                 else if (_Collider.GetBox().y >= (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h - speed*2){
                     move.y *= -1;
@@ -199,7 +203,7 @@ void Planet::MoonCollision(){
                 }
                 if (_Collider.GetBox().x + _Collider.GetBox().w <= (*i)->getCollider().GetBox().x + speed*2){
                     move.x *= -1;
-                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - 1;
+                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - 1 - 5;
                 }
                 else if (_Collider.GetBox().x >= (*i)->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - speed*2){
                     move.x *= -1;
@@ -209,7 +213,7 @@ void Planet::MoonCollision(){
             else if (strcmp((*i)->GetID(), "sun") == 0 && (*i)->GetRigidBody()->getMass() == 3.0f){
                 if (_Collider.GetBox().y + _Collider.GetBox().h <= (*i)->getCollider().GetBox().y + speed*3){
                     move.y *= -1;
-                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - speed*2;
+                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - speed*2 - 5;
                 }
                 else if (_Collider.GetBox().y >= (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h - speed*3){
                     move.y *= -1;
@@ -217,7 +221,7 @@ void Planet::MoonCollision(){
                 }
                 if (_Collider.GetBox().x + _Collider.GetBox().w <= (*i)->getCollider().GetBox().x + speed*3){
                     move.x *= -1;
-                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - speed*2;
+                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - speed*2 - 5;
                 }
                 else if (_Collider.GetBox().x >= (*i)->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - speed*3){
                     move.x *= -1;
@@ -227,7 +231,7 @@ void Planet::MoonCollision(){
             else if (strcmp((*i)->GetID(), "moon") == 0) {
                 if (_Collider.GetBox().y + _Collider.GetBox().h <= (*i)->getCollider().GetBox().y + speed*4){
                     move.y *= -1;
-                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1;
+                    _Transform->y = (*i)->getCollider().GetBox().y - _Collider.GetBox().h - 1 - 5;
                 }
                 else if (_Collider.GetBox().y >= (*i)->getCollider().GetBox().y + (*i)->getCollider().GetBox().h - speed*4){
                     move.y *= -1;
@@ -235,7 +239,7 @@ void Planet::MoonCollision(){
                 }
                 if (_Collider.GetBox().x + _Collider.GetBox().w <= (*i)->getCollider().GetBox().x + speed*3){
                     move.x *= -1;
-                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - 1;
+                    _Transform->x = (*i)->getCollider().GetBox().x - _Collider.GetBox().w - 1 - 5;
                 }
                 else if (_Collider.GetBox().x >= (*i)->getCollider().GetBox().x + (*i)->getCollider().GetBox().w - speed*3){
                     move.x *= -1;

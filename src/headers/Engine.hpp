@@ -7,7 +7,7 @@
 
 #define WIDTH 1200
 #define HEIGHT 675
-#define GAME_TITLE "Holy War"
+#define GAME_TITLE "Extreme Dogde"
 
 #define Ground_H 0 // Modifiable
 #define Ground_X 0 // Const
