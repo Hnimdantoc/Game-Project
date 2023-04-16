@@ -13,10 +13,11 @@ void Animation::Update(float& dt){
 }
 
 void Animation::Render(float x, float y, int w, int h, float SCALE){
-    TextureManager::GetInstance()->AnimationRender(ID, x, y, w, h, spriteRow, frame, SCALE, flip);
+    if (reverse) TextureManager::GetInstance()->AnimationRender(ID, x, y, w, h, spriteRow, (frameCount-1-frame), SCALE, flip);
+    else TextureManager::GetInstance()->AnimationRender(ID, x, y, w, h, spriteRow, frame, SCALE, flip);
 }
 
-void Animation::SetProp(const char* _ID, int _spriteRow, int _frameCount, int _animateSpeed, SDL_RendererFlip _flip){
+void Animation::SetProp(const char* _ID, int _spriteRow, int _frameCount, int _animateSpeed, SDL_RendererFlip _flip, bool Reverse){
     ID = _ID;
     spriteRow = _spriteRow;
     frameCount = _frameCount;
@@ -24,4 +25,5 @@ void Animation::SetProp(const char* _ID, int _spriteRow, int _frameCount, int _a
     flip = _flip;
     frameTime = 0;
     prevFrame = 0;
+    reverse = Reverse;
 }

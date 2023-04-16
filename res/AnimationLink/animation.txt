@@ -6,6 +6,15 @@ player4 res/Assests/dude_blue.png
 player5 res/Assests/dude_purple.png
 background res/backgrounds/background.png
 background_transparent res/backgrounds/background_transparent.png
+pause_background res/backgrounds/pause_background.png
+score_background res/backgrounds/score_background.png
+top_cursor res/Assests/top_cursor.png
+left_cursor res/Assests/left_cursor.png
+right_cursor res/Assests/right_cursor.png
+heart res/Assests/heart.png
+rotate_1 res/Assests/rotate_1.png
+rotate_2 res/Assests/rotate_2.png
+rotate_3 res/Assests/rotate_3.png
 select_1 res/backgrounds/select_1.png
 select_2 res/backgrounds/select_2.png
 menu_background res/backgrounds/menu_background.png

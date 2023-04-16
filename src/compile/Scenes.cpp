@@ -1,4 +1,5 @@
 #include "Scenes.hpp"
+#include <fstream>
 /********************************************************************************/
 Menu* Menu::static_instance = nullptr;
 Menu::Menu() : ID(MENU_SCENE) {        
@@ -167,9 +168,15 @@ Select::Select() : ID(SELECT_SCENE){
     player1_idle.SetProp("player", 0, 4, 150);
     minute_box.x = 600;
     minute_box.y = 10;
+    top_cursor.SetProp("top_cursor", 0, 9, 100);
+    left_cursor.SetProp("left_cursor", 0, 1, 100);
+    right_cursor.SetProp("right_cursor", 0, 1, 100);
+    heart.SetProp("heart", 0, 1, 100);
+    rotate_1.SetProp("rotate_1", 0, 1, 100);
+    rotate_2.SetProp("rotate_2", 0, 1, 100);
+    rotate_3.SetProp("rotate_3", 0, 1, 100);
     SDL_QueryTexture(thirty, nullptr, nullptr, &minute_box.w, &minute_box.h);
     bg = (mode == 1) ? "select_1" : "select_2";
-
     vectorMinute.push_back(fifteen);
     vectorMinute.push_back(thirty);
     vectorMinute.push_back(forty_five);
@@ -203,11 +210,19 @@ void Select::Update(float& dt){
     else if (blink == 0x10 && delta < 0) delta *= -1;
     SDL_Color temp = {0, 0, 0, blink};
     if (n_player.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, n_player.c_str(), {19, 71, 22});
-    else if (n_player.length() == 0 && !skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, "enter name", temp);
+    else if (n_player.length() == 0 && !name_entered) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, "enter name", temp);
     if (mode == 2 && n_player1.length() > 0 && skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, n_player1.c_str(), {19, 71, 22});
-    else if (mode == 2 && n_player1.length() == 0 && skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, "enter name", temp);
+    else if (mode == 2 && n_player1.length() == 0 && !name1_entered) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, "enter name", temp);
     player_idle.Update(dt);
     player1_idle.Update(dt);
+    top_cursor.Update(dt);
+    if (!(left_cursor.GetFrame() == 0 && left_cursor.GetPrevFrame() == 3)) left_cursor.Update(dt);
+    if (!(right_cursor.GetFrame() == 0 && right_cursor.GetPrevFrame() == 3)) right_cursor.Update(dt);
+    if (!(heart.GetFrame() == 20 && heart.GetPrevFrame() == 19)) heart.Update(dt);
+    if (rotate == 1 && !(rotate_1.GetFrame() == 9 && rotate_1.GetPrevFrame() == 8)) rotate_1.Update(dt);
+    else if (rotate == 2 && !(rotate_2.GetFrame() == 9 && rotate_2.GetPrevFrame() == 8)) rotate_2.Update(dt);
+    else if (rotate == 3 && !(rotate_3.GetFrame() == 9 && rotate_3.GetPrevFrame() == 8)) rotate_3.Update(dt);
+    else if (rotate == 0) rotate_1.Update(dt);
 }
 void Select::Render(){
     TextureManager::GetInstance()->Render(bg, 0, 0, WIDTH, HEIGHT);
@@ -235,6 +250,16 @@ void Select::Render(){
     minute_box.x = (WIDTH - minute_box.w) / 2;
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), selected_minutes, nullptr, &minute_box);
 
+    top_cursor.Render(568, 208, 64, 42);
+    left_cursor.Render(140, 330, 85, 132);
+    right_cursor.Render(990, 330, 85, 132);
+    heart.Render(565, 553, 75, 75);
+    
+    if (rotate == 1) rotate_1.Render(295, 400, 620, 197);
+    else if (rotate == 2) rotate_2.Render(295, 400, 617, 199);
+    else if (rotate == 3) rotate_3.Render(295, 400, 617, 199);
+    else rotate_1.Render(295, 400, 620, 197);
+
     MakeRectFromTexture(&player_name, &temp, 0, 128);
     temp.x = (WIDTH - temp.w) / 2;
     if (mode == 1) {
@@ -254,6 +279,83 @@ void Select::Render(){
             SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &temp);
             SDL_DestroyTexture(player_name);
             player_name = nullptr;
+        }
+    }
+
+    if (mode == 1) {
+        if (!name_entered) {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Enter your name", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
+        }
+        else if (!skin_has_been_selected) {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Choose your skin", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
+        }
+        else {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Select difficulty", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
+        }
+    }
+    else if (mode == 2) {
+        if (!name_entered && !skin_has_been_selected) {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Enter your name", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
+        }
+        else if (!name1_entered && skin_has_been_selected) {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Enter your name", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
+        }
+        else if (!skin_has_been_selected) {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Choose your skin", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
+        }
+        else if (!skin1_has_been_selected && name1_entered) {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Choose your skin", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
+        }
+        else {
+            TTF_Font* _font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 29);
+            SDL_Texture* message;
+            TextureManager::GetInstance()->CreateTextureFromText(&message, _font, "Select difficulty", {26, 72, 86, 255});
+            MakeRectFromTexture(&message, &temp, 843, 629);
+            SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), message, nullptr, &temp);
+            TTF_CloseFont(_font);
+            SDL_DestroyTexture(message);
         }
     }
 }
@@ -300,12 +402,30 @@ void Select::KeyDown(SDL_Scancode scancode){
                 if (Skins_iterator == vectorSkins.size()) Skins_iterator = 0;
                 selected_skin = vectorSkins[Skins_iterator];
                 player_idle.SetProp(selected_skin.c_str(), 0, 4, 150);
+                left_cursor.SetProp("left_cursor", 0, 4, 50);
+                heart.SetProp("heart", 0, 21, 50, SDL_FLIP_HORIZONTAL);
+                if (!JustChangeRotate_right) rotate++;
+                JustChangeRotate_left = true;
+                JustChangeRotate_right = false;
+                if (rotate == 4) rotate = 1;
+                if (rotate == 1) rotate_1.SetProp("rotate_1", 0, 10, 20);
+                else if (rotate == 2) rotate_2.SetProp("rotate_2", 0, 10, 20);
+                else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20);
                 break;
             case SDL_SCANCODE_RIGHT:
                 Skins_iterator--;
                 if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
                 selected_skin = vectorSkins[Skins_iterator];
                 player_idle.SetProp(selected_skin.c_str(), 0, 4, 150);
+                right_cursor.SetProp("right_cursor", 0, 4, 50);
+                heart.SetProp("heart", 0, 21, 50);
+                if (!JustChangeRotate_left) rotate--;
+                JustChangeRotate_left = false;
+                JustChangeRotate_right = true;
+                if (rotate == 0) rotate = 3;
+                if (rotate == 1) rotate_1.SetProp("rotate_1", 0, 10, 20, SDL_FLIP_NONE, true);
+                else if (rotate == 2) rotate_2.SetProp("rotate_2", 0, 10, 20, SDL_FLIP_NONE, true);
+                else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20, SDL_FLIP_NONE, true);
                 break;
             case SDL_SCANCODE_RETURN:
                 skin_has_been_selected = true;
@@ -322,16 +442,34 @@ void Select::KeyDown(SDL_Scancode scancode){
     if (!skin1_has_been_selected && skin_has_been_selected && mode == 2 && name1_entered){
         switch (scancode){
             case SDL_SCANCODE_A:
-                Skins_iterator--;
-                if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
-                selected_skin1 = vectorSkins[Skins_iterator];
-                player1_idle.SetProp(selected_skin1.c_str(), 0, 4, 150);
-                break;
-            case SDL_SCANCODE_D:
                 Skins_iterator++;
                 if (Skins_iterator == vectorSkins.size()) Skins_iterator = 0;
                 selected_skin1 = vectorSkins[Skins_iterator];
                 player1_idle.SetProp(selected_skin1.c_str(), 0, 4, 150);
+                left_cursor.SetProp("left_cursor", 0, 4, 60);
+                heart.SetProp("heart", 0, 21, 50);
+                if (!JustChangeRotate_right) rotate++;
+                JustChangeRotate_left = true;
+                JustChangeRotate_right = false;
+                if (rotate == 4) rotate = 1;
+                if (rotate == 1) rotate_1.SetProp("rotate_1", 0, 10, 20);
+                else if (rotate == 2) rotate_2.SetProp("rotate_2", 0, 10, 20);
+                else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20);
+                break;
+            case SDL_SCANCODE_D:
+                Skins_iterator--;
+                if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
+                selected_skin1 = vectorSkins[Skins_iterator];
+                player1_idle.SetProp(selected_skin1.c_str(), 0, 4, 150);
+                right_cursor.SetProp("right_cursor", 0, 4, 60);
+                heart.SetProp("heart", 0, 21, 50, SDL_FLIP_HORIZONTAL);
+                if (!JustChangeRotate_left) rotate--;
+                JustChangeRotate_left = false;
+                JustChangeRotate_right = true;
+                if (rotate == 0) rotate = 3;
+                if (rotate == 1) rotate_1.SetProp("rotate_1", 0, 10, 20, SDL_FLIP_NONE, true);
+                else if (rotate == 2) rotate_2.SetProp("rotate_2", 0, 10, 20, SDL_FLIP_NONE, true);
+                else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20, SDL_FLIP_NONE, true);
                 break;
             case SDL_SCANCODE_RETURN:
                 skin1_has_been_selected = true;
@@ -440,6 +578,57 @@ void Scene_0::Update(float& dt){
         _time = front + ":" + end;
     }
     GameObjectHandler::GetInstance()->Update(dt);
+}
+
+void Scene_0::SaveScore(){
+    if (player1_name == nullptr){
+        std::fstream mode_1_best;
+        mode_1_best.open("res/Score/mode_1_best.txt", std::ios::in);
+        if (mode_1_best.is_open()){
+            std::string trash;
+            mode_1_best >> trash >> trash;
+            int d, h, m;
+            mode_1_best >> d >> h >> m;
+            if (DAYS > d || (DAYS == d && HOURS.first > h) || (DAYS == d && HOURS.first == h && HOURS.second > m)) {
+                mode_1_best.close();
+                mode_1_best.open("res/Score/mode_1_best.txt", std::ios::out);
+                mode_1_best << name << std::endl << player->GetID() << std::endl << DAYS << std::endl << HOURS.first << std::endl << HOURS.second;
+                mode_1_best.close();
+            }
+        }
+        else std::cout << "Error. Cannot open file: res/Score/mode_1_best.txt" << std::endl;
+
+        std::ofstream mode_1_current("res/Score/mode_1 _current.txt");
+        if (mode_1_current){
+            mode_1_current << name << std::endl << player->GetID() << std::endl << DAYS << std::endl << HOURS.first << std::endl << HOURS.second;
+            mode_1_current.close();
+        }
+        else std::cout << "Error. Cannot open file: res/Score/mode_1_current.txt" << std::endl;
+
+    }
+    else {
+        std::fstream mode_2_best;
+        mode_2_best.open("res/Score/mode_2_best.txt", std::ios::in);
+        if (mode_2_best.is_open()){
+            std::string trash;
+            mode_2_best >> trash >> trash >> trash >> trash;
+            int d, h, m;
+            mode_2_best >> d >> h >> m;
+            if (DAYS > d || (DAYS == d && HOURS.first > h) || (DAYS == d && HOURS.first == h && HOURS.second > m)) {
+                mode_2_best.close();
+                mode_2_best.open("res/Score/mode_2_best.txt", std::ios::out);
+                mode_2_best << name << std::endl << player->GetID() << std::endl << name1 << std::endl << player1->GetID() << std::endl << DAYS << std::endl << HOURS.first << std::endl << HOURS.second;
+                mode_2_best.close();
+            }
+        }
+        
+        std::ofstream mode_2_current("res/Score/mode_2_current.txt");
+        if (mode_2_current){
+            mode_2_current << name << std::endl << player->GetID() << std::endl << name1 << std::endl << player1->GetID() << std::endl << DAYS << std::endl << HOURS.first << std::endl << HOURS.second;
+            mode_2_current.close();
+        }
+        else std::cout << "Error. Cannot open file: res/Score/mode_1_currentmode_2_current.txt" << std::endl;
+    }
 }
 
 void Scene_0::Render(){
@@ -688,12 +877,12 @@ Pause::Pause() : ID(PAUSE_SCENE){
     background = SDL_CreateTextureFromSurface(Engine::GetInstance()->GetRenderer(), snap);
     SDL_FreeSurface(snap);
 
-    font = TextureManager::GetInstance()->LoadFont("res/Fonts/Freedom.ttf", 70);
+    font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 24);
 
-    TextureManager::GetInstance()->CreateTextureFromText(&Resume, font, "Resume", {0, 255, 200});
-    MakeRectFromTexture(&Resume, &resume_rect, 0, 0);
-    TextureManager::GetInstance()->CreateTextureFromText(&Menu, font, "Menu", {100, 255, 200});
-    MakeRectFromTexture(&Menu, &menu_rect, 500, 0);
+    TextureManager::GetInstance()->CreateTextureFromText(&Resume, font, "Resume", {0, 0, 0});
+    MakeRectFromTexture(&Resume, &resume_rect, 414, 321);
+    TextureManager::GetInstance()->CreateTextureFromText(&Menu, font, "Menu", {0, 0, 0});
+    MakeRectFromTexture(&Menu, &menu_rect, 695, 321);
 
     currentRect = &resume_rect;
     vectorRect.push_back(&resume_rect);
@@ -716,36 +905,236 @@ void Pause::Render(){
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), background, nullptr, nullptr);
     SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(), nullptr);
 
+    TextureManager::GetInstance()->Render("pause_background", 0, 0, WIDTH, HEIGHT);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Resume, nullptr, &resume_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Menu, nullptr, &menu_rect);
+    SDL_Rect temp = {406, 310, 128, 56};
+    SDL_Rect temp1 = {666, 310, 128, 56};
+    if (currentRect ==  &menu_rect) SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(),  &temp);
+    else if (currentRect ==  &resume_rect) SDL_RenderFillRect(Engine::GetInstance()->GetRenderer(),  &temp1);
 
-    SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
+    //SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
 }
 
 void Pause::KeyDown(SDL_Scancode scancode){
-    switch (scancode)
-    {
-    case SDL_SCANCODE_LEFT:
-        i--;
-        if (i < 0) i = vectorRect.size() - 1;
-        currentRect = vectorRect[i];
-        break;
-    case SDL_SCANCODE_RIGHT:
-        i++;
-        if (i == vectorRect.size()) i = 0;
-        currentRect = vectorRect[i];
-        break;
-    case SDL_SCANCODE_RETURN:
-        if (currentRect == &resume_rect) SceneManager::GetInstance()->ChangeScene(PLAYSCENE, false, false, true);
-        else if (currentRect == &menu_rect) {
-            SceneManager::GetInstance()->Clean(PLAYSCENE);
-            SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
-        }
-        return;
-        break;
+    switch (scancode){
+        case SDL_SCANCODE_LEFT:
+            i--;
+            if (i < 0) i = vectorRect.size() - 1;
+            currentRect = vectorRect[i];
+            break;
+        case SDL_SCANCODE_RIGHT:
+            i++;
+            if (i == vectorRect.size()) i = 0;
+            currentRect = vectorRect[i];
+            break;
+        case SDL_SCANCODE_RETURN:
+            if (currentRect == &resume_rect) SceneManager::GetInstance()->ChangeScene(PLAYSCENE, false, false, true);
+            else if (currentRect == &menu_rect) {
+                SceneManager::GetInstance()->Clean(PLAYSCENE);
+                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+            }
+            return;
+            break;
     }
 }
 
 void Pause::KeyUp(SDL_Scancode scancode){
 
+}
+
+/********************************************************************************/
+
+Score* Score::static_instance = nullptr;
+
+Score::Score() : ID(SCORE_SCENE) {
+    SceneManager::GetInstance()->addScene(ID, this);
+    static_instance = this;
+    name = Scene_0::GetInstance()->name;
+    if (Scene_0::GetInstance()->name1 != "") name1 = Scene_0::GetInstance()->name1;
+    currDays = Scene_0::GetInstance()->DAYS;
+    currHours = Scene_0::GetInstance()->HOURS.first;
+    currMinutes = Scene_0::GetInstance()->HOURS.second;
+
+    if (name1 == ""){
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 35);
+        std::ifstream mode_1_best("res/Score/mode_1_best.txt");
+        if (mode_1_best){
+            mode_1_best >> best_name >> best_skin >> BestDays >> BestHours >> BestMinutes;
+            mode_1_best.close();
+        }
+        else std::cout << "Error. Cannot open file: res/Score/mode_1_best.txt" << std::endl;
+        curr_skin = Player::GetInstance()->GetID();
+        curr_Idle.SetProp(curr_skin.c_str(), 0, 4, 100);
+        best_Idle.SetProp(best_skin.c_str(), 0, 4, 100);
+    }
+    else {
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 25);
+        std::ifstream mode_2_best("res/Score/mode_2_best.txt");
+        if (mode_2_best){
+            mode_2_best >> best_name >> best_skin >> best_name1 >> best_skin1 >> BestDays >> BestHours >> BestMinutes;
+            mode_2_best.close();
+        }
+        else std::cout << "Error. Cannot open file: res/Score/mode_2_best.txt" << std::endl;
+        curr_skin = Player::GetInstance()->GetID();
+        curr_Idle.SetProp(curr_skin.c_str(), 0, 4, 100);
+        best_Idle.SetProp(best_skin.c_str(), 0, 4, 100);
+
+        curr_skin1 = Player1::GetInstance()->GetID();
+        curr1_Idle.SetProp(curr_skin1.c_str(), 0, 4, 100);
+        best1_Idle.SetProp(best_skin1.c_str(), 0, 4, 100);
+    }
+}
+
+Score::~Score(){
+    TTF_CloseFont(font);
+}
+
+void Score::Update(float& dt){
+    curr_Idle.Update(dt);
+    best_Idle.Update(dt);
+    if (name1 != "") {
+        curr1_Idle.Update(dt);
+        best1_Idle.Update(dt);
+    }
+}
+
+void Score::Render(){
+    TextureManager::GetInstance()->Render("score_background", 0, 0, WIDTH, HEIGHT);
+    if (name1 == "") {
+        SDL_Texture* temp;
+        SDL_Rect temp_rect;
+        TTF_CloseFont(font);
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/mono.ttf", 35);
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, name.c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
+        temp_rect.x = 796+32*4-temp_rect.w/2;
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, best_name.c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
+        temp_rect.x = 148+32*4-temp_rect.w/2;
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+        TTF_CloseFont(font);
+
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 32);
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (BestDays < 10 ? "0"+std::to_string(BestDays):std::to_string(BestDays)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 126, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(BestHours) == "0" ? "00" : std::to_string(BestHours)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 260, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(BestMinutes) == "0" ? "00" : std::to_string(BestMinutes)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 410, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (currDays < 10 ? "0"+std::to_string(currDays):std::to_string(currDays)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 728, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(currHours) == "0" ? "00" : std::to_string(currHours)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 862, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(currMinutes) == "0" ? "00" : std::to_string(currMinutes) ).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 1012, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+        TTF_CloseFont(font);
+        font = nullptr;
+
+        curr_Idle.Render(796, 300, 32, 32, 8);
+        best_Idle.Render(148, 300, 32, 32, 8);
+    }
+    else {
+        SDL_Texture* temp;
+        SDL_Rect temp_rect;
+        TTF_CloseFont(font);
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/mono.ttf", 35);
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, name.c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
+        temp_rect.x = 671+32*4-temp_rect.w/2;
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, best_name.c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
+        temp_rect.x = 68+32*4-temp_rect.w/2;
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, best_name1.c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
+        temp_rect.x = 392+32*4-temp_rect.w/2;
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+        
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, name1.c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
+        temp_rect.x = 995+32*4-temp_rect.w/2;
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TTF_CloseFont(font);
+
+        font = TextureManager::GetInstance()->LoadFont("res/Fonts/arial.ttf", 32);
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (BestDays < 10 ? "0"+std::to_string(BestDays):std::to_string(BestDays)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 126, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(BestHours) == "0" ? "00" : std::to_string(BestHours)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 260, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(BestMinutes) == "0" ? "00" : std::to_string(BestMinutes)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 410, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (currDays < 10 ? "0"+std::to_string(currDays):std::to_string(currDays)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 728, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(currHours) == "0" ? "00" : std::to_string(currHours)).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 862, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(currMinutes) == "0" ? "00" : std::to_string(currMinutes) ).c_str(), {26, 72, 86, 255});
+        MakeRectFromTexture(&temp, &temp_rect, 1012, 90);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
+        SDL_DestroyTexture(temp);
+        TTF_CloseFont(font);
+        font = nullptr;
+
+        curr_Idle.Render(671, 300, 32, 32, 8);
+        best_Idle.Render(68, 300, 32, 32, 8);
+        curr1_Idle.Render(995, 300, 32, 32, 8);
+        best1_Idle.Render(392, 300, 32, 32, 8);
+    }
+
+}
+
+void Score::KeyDown(SDL_Scancode scancode){
+    switch (scancode){
+        case SDL_SCANCODE_RETURN:
+            SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+            return;
+            break;
+    }
+}
+
+void Score::KeyUp(SDL_Scancode scancode){
 }

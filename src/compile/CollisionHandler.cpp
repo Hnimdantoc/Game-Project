@@ -58,7 +58,8 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
                 }
             }
             else{
-                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                Scene_0::GetInstance()->SaveScore();
+                SceneManager::GetInstance()->ChangeScene(SCORE_SCENE);
                 return;
             }
             (*i)->Clean();
@@ -137,7 +138,8 @@ void CollisionHandler::Player1Collisions(Collider& player_rect){
                 }
             }
             else{
-                SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+                Scene_0::GetInstance()->SaveScore();
+                SceneManager::GetInstance()->ChangeScene(SCORE_SCENE);
                 return;
             }
             (*i)->Clean();

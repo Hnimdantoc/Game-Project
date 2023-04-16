@@ -1,0 +1,5 @@
+HideOnBush
+player2
+1
+15
+30

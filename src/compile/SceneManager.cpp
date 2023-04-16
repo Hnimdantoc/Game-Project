@@ -34,6 +34,7 @@ void SceneManager::ChangeScene(int ID, bool Create, bool transition, bool clean)
         else if (ID == SELECT_SCENE) Select* selec_scene = new Select();
         else if (ID == PLAYSCENE) Scene_0* play_scene = new Scene_0();
         else if (ID == PAUSE_SCENE) Pause* pause_scene = new Pause();
+        else if (ID == SCORE_SCENE) Score* score_scene = new Score();
     }
     if (transition) TextureManager::GetInstance()->Transition();
     if (clean) Clean();

@@ -49,13 +49,13 @@ public:
     std::string n_player = "", n_player1 = "";
 private:
     static Select* static_instance;
-    int ID;
+    int ID, rotate = 0;
     float change = 0, delta = 1;
-    Uint8 blink = 0x60; 
     const char* bg;
-    bool skin_has_been_selected, skin1_has_been_selected, name_entered = false, name1_entered = false;
+    bool skin_has_been_selected, skin1_has_been_selected, name_entered = false, name1_entered = false, JustChangeRotate_left = false, JustChangeRotate_right = false;
     int Skins_iterator = 0, Minute_iterator = 1, max_name_char = 10;
-    Animation player_idle, player1_idle;
+    Animation player_idle, player1_idle, left_cursor, right_cursor, top_cursor, heart, rotate_1, rotate_2, rotate_3;
+    Uint8 blink = 0x60; 
     TTF_Font* font;
     SDL_Rect minute_box;
     SDL_Texture* player_name;
@@ -83,6 +83,7 @@ public:
     int DAYS;
     int max_sun;
     std::string _time;
+    std::string name, name1;
     std::pair <int, int> HOURS;
 private:
     static Scene_0* static_instance;
@@ -91,7 +92,6 @@ private:
     float spawnSun = 0;
     int countSun, countMoon;
     int samurai_x = 210, GO = 1;
-    std::string name, name1;
     TTF_Font* freedom;
     Player1* player1;
     Player* player;
@@ -108,6 +108,7 @@ private:
 public:
     Scene_0();
     ~Scene_0();
+    void SaveScore();
     void Update(float& dt);
     void Render();
     void KeyDown(SDL_Scancode scancode);
@@ -133,6 +134,25 @@ private:
 public:
     Pause();
     ~Pause();
+    void KeyDown(SDL_Scancode scancode);
+    void KeyUp(SDL_Scancode scancode);
+    void Update(float& dt);
+    void Render();
+};
+
+class Score : public Scene {
+public:
+    static Score* GetInstance(){return static_instance;}
+private:
+    static Score* static_instance;
+    int ID;
+    int currDays, currHours, currMinutes, BestDays, BestHours, BestMinutes;
+    Animation curr_Idle, best_Idle, curr1_Idle, best1_Idle;
+    std::string name, best_name, best_name1, name1 = "", curr_skin, best_skin, curr_skin1 = "", best_skin1 = "";
+    TTF_Font* font;
+public:
+    Score();
+    ~Score();
     void KeyDown(SDL_Scancode scancode);
     void KeyUp(SDL_Scancode scancode);
     void Update(float& dt);
