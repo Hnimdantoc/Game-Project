@@ -1,5 +1,5 @@
-HideOnBush
-player2
-1
-15
-30
+Faker
+player1
+4
+11
+0

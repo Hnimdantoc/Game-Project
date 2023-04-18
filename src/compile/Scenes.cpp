@@ -422,7 +422,7 @@ void Select::KeyDown(SDL_Scancode scancode){
                 if (!JustChangeRotate_left) rotate--;
                 JustChangeRotate_left = false;
                 JustChangeRotate_right = true;
-                if (rotate == 0) rotate = 3;
+                if (rotate <= 0) rotate = 3;
                 if (rotate == 1) rotate_1.SetProp("rotate_1", 0, 10, 20, SDL_FLIP_NONE, true);
                 else if (rotate == 2) rotate_2.SetProp("rotate_2", 0, 10, 20, SDL_FLIP_NONE, true);
                 else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20, SDL_FLIP_NONE, true);
@@ -466,7 +466,7 @@ void Select::KeyDown(SDL_Scancode scancode){
                 if (!JustChangeRotate_left) rotate--;
                 JustChangeRotate_left = false;
                 JustChangeRotate_right = true;
-                if (rotate == 0) rotate = 3;
+                if (rotate <= 0) rotate = 3;
                 if (rotate == 1) rotate_1.SetProp("rotate_1", 0, 10, 20, SDL_FLIP_NONE, true);
                 else if (rotate == 2) rotate_2.SetProp("rotate_2", 0, 10, 20, SDL_FLIP_NONE, true);
                 else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20, SDL_FLIP_NONE, true);
@@ -682,7 +682,7 @@ void Scene_0::Render(){
     GameObjectHandler::GetInstance()->Render();
     MakeRectFromTexture(&player_name, &p_rect, Player::GetInstance()->getTransform()->x + 32 - p_rect.w/2, Player::GetInstance()->getTransform()->y-20);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &p_rect);
-    if (Player1::GetInstance() != nullptr) MakeRectFromTexture(&player1_name, &p1_rect, Player1::GetInstance()->getTransform()->x, Player1::GetInstance()->getTransform()->y-20);
+    if (Player1::GetInstance() != nullptr) MakeRectFromTexture(&player1_name, &p1_rect, Player1::GetInstance()->getTransform()->x + 32 - p1_rect.w/2, Player1::GetInstance()->getTransform()->y-20);
     if (Player1::GetInstance() != nullptr) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &p1_rect);
 }
 
@@ -1025,7 +1025,7 @@ void Score::Render(){
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
 
-        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(BestHours) == "0" ? "00" : std::to_string(BestHours)).c_str(), {26, 72, 86, 255});
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (BestHours < 10 ? "0"+std::to_string(BestHours) : std::to_string(BestHours)).c_str(), {26, 72, 86, 255});
         MakeRectFromTexture(&temp, &temp_rect, 260, 90);
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
@@ -1040,7 +1040,7 @@ void Score::Render(){
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
 
-        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (std::to_string(currHours) == "0" ? "00" : std::to_string(currHours)).c_str(), {26, 72, 86, 255});
+        TextureManager::GetInstance()->CreateTextureFromText(&temp, font, (currHours < 10 ? "0"+std::to_string(currHours) : std::to_string(currHours)).c_str(), {26, 72, 86, 255});
         MakeRectFromTexture(&temp, &temp_rect, 862, 90);
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
