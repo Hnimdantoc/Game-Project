@@ -2,6 +2,7 @@
 #include "TextureManager.hpp"
 #include "Timer.hpp"
 #include "Scenes.hpp"
+#include "Mixer.hpp"
 #include "CollisionHandler.hpp"
 
 Engine* Engine::static_Instance = nullptr;
@@ -15,6 +16,7 @@ Engine::~Engine(){
 void Engine::init(const char* title, int x, int y, int w, int h, Uint32 flags){
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
+    Mixer::GetInstance()->Init();
     SDL_StartTextInput();
     static_Instance = this;
     // Init window
@@ -31,8 +33,9 @@ void Engine::init(const char* title, int x, int y, int w, int h, Uint32 flags){
     SDL_FreeSurface(icon);
 
     // Load sprite sheets from txt file
-    TextureManager::GetInstance()->LoadFromFile("res/AnimationLink/animation.txt");
-    
+    TextureManager::GetInstance()->LoadFromFile("res/File_name_loader/animation.txt");
+    Mixer::GetInstance()->Load("res/File_name_loader/music.txt", "res/File_name_loader/sfx.txt");
+    Mixer::GetInstance()->Play(MENU_THEME, MUSIC, -1, true, 250);
     Menu* menu = new Menu();
 
     // Set ground
@@ -43,6 +46,7 @@ void Engine::init(const char* title, int x, int y, int w, int h, Uint32 flags){
 }
 
 void Engine::Quit(){
+    delete Mixer::GetInstance();
     delete Timer::getIntance();
     delete Input::GetInstance();
     delete SceneManager::GetInstance();
@@ -52,6 +56,7 @@ void Engine::Quit(){
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_StopTextInput();
+    Mix_Quit();
     SDL_Quit();
 }
 

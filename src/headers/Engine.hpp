@@ -5,6 +5,8 @@
 #include "SDL2/SDL_image.h"
 #include "input.hpp"
 
+
+
 #define WIDTH 1200
 #define HEIGHT 675
 #define GAME_TITLE "Extreme Dogde"
@@ -22,6 +24,8 @@
 #define PAUSE_SCENE -1
 #define SCORE_SCENE -2
 
+#define MENU_THEME "res/Sounds/mario_lofi.mp3"
+#define PLAY_THEME "res/Sounds/8_bit_adventure.mp3"
 
 #define ICON_PATH "res/Icon/t1.png"
 #define R 140
@@ -43,7 +47,7 @@ public:
     static Engine* GetInstance(){return static_Instance = (static_Instance != nullptr) ? static_Instance : new Engine();}
     
     void init(const char* title, int x, int y, int w, int h, Uint32 flags);
-
+    
     inline SDL_Rect GetGround(){return _Ground;}
     inline SDL_Renderer* GetRenderer(){return renderer;}
     inline GAME_STATE getGameState(){return _gameState;}
@@ -57,5 +61,3 @@ public:
 private:
     Engine();
 };
-
-

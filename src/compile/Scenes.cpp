@@ -1,5 +1,6 @@
 #include "Scenes.hpp"
 #include <fstream>
+#include "Mixer.hpp"
 /********************************************************************************/
 Menu* Menu::static_instance = nullptr;
 Menu::Menu() : ID(MENU_SCENE) {        
@@ -121,16 +122,12 @@ void Menu::KeyDown(SDL_Scancode scancode){
                     i++;
                     currentRect = &mode_1_rect;
                 }
-                else if (Menu::GetInstance()->currentRect == &exit_rect) {
-                    Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
-                    return;
-                }
+                else if (Menu::GetInstance()->currentRect == &exit_rect) Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
+                return;
             }
-            else {
-                if (currentRect == &mode_1_rect) mode_2 = false;
-                else mode_2 = true;
-                SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
-            }
+            if (currentRect == &mode_1_rect) mode_2 = false;
+            else mode_2 = true;
+            SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
             break;
         case SDL_SCANCODE_ESCAPE:
             if (ChoosingMode) {
@@ -718,6 +715,7 @@ void Scene_0::RenderSamuraiMerchant(){
 
 void Scene_0::KeyDown(SDL_Scancode scancode){
     if (scancode == PLAYER_JUMP_SCANCODE && ((Player::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player::GetInstance()->lastJump >= 0)) || Player::GetInstance()->GetRemainJumps() == 1)/* && Player::GetInstance()->GetAllowInput() == true*/){
+        Mixer::GetInstance()->Play("res/Sounds/sfx_jump.wav", SFX, 0);
         if (Player::GetInstance()->GetRemainJumps() == 2) {
             Player::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
             Player::GetInstance()->lastJump = SDL_GetTicks();
@@ -783,6 +781,7 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
     //////////////////////////////////////////
     if (Player1::GetInstance() != nullptr){
         if (scancode == PLAYER1_JUMP_SCANCODE && ((Player1::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player1::GetInstance()->lastJump >= 0)) || Player1::GetInstance()->GetRemainJumps() == 1)/* && Player1::GetInstance()->GetAllowInput() == true*/){
+        Mixer::GetInstance()->Play("res/Sounds/sfx_jump.wav", SFX, 0);    
         if (Player1::GetInstance()->GetRemainJumps() == 2) {
             Player1::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
             Player1::GetInstance()->lastJump = SDL_GetTicks();

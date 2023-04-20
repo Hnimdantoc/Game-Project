@@ -1,5 +1,6 @@
 #include "SceneManager.hpp"
 #include "Scenes.hpp"
+#include "Mixer.hpp"
 
 SceneManager* SceneManager::static_instance = nullptr;
 
@@ -30,9 +31,17 @@ void SceneManager::Render(){
 
 void SceneManager::ChangeScene(int ID, bool Create, bool transition, bool clean){
     if (Create){
-        if (ID == MENU_SCENE) Menu* menu = new Menu();
+        if (ID == MENU_SCENE) {
+            Mix_FadeOutMusic(500);
+            Mixer::GetInstance()->Play(MENU_THEME, MUSIC, -1, true, 5000);
+            Menu* menu = new Menu();
+        }
         else if (ID == SELECT_SCENE) Select* selec_scene = new Select();
-        else if (ID == PLAYSCENE) Scene_0* play_scene = new Scene_0();
+        else if (ID == PLAYSCENE) {
+            Mix_FadeOutMusic(500);
+            Mixer::GetInstance()->Play(PLAY_THEME, MUSIC, -1, true, 5000);
+            Scene_0* play_scene = new Scene_0();
+        }
         else if (ID == PAUSE_SCENE) Pause* pause_scene = new Pause();
         else if (ID == SCORE_SCENE) Score* score_scene = new Score();
     }
