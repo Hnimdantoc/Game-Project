@@ -1,7 +1,7 @@
-player 1
+ad
 player
-player 2
-player
+asd
+player2
 1
 0
 0
