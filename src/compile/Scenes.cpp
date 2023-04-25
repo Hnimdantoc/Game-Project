@@ -1,4 +1,5 @@
 #include "Scenes.hpp"
+#include "Trail.hpp"
 #include <fstream>
 /********************************************************************************/
 Menu* Menu::static_instance = nullptr;
@@ -605,12 +606,11 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     TextureManager::GetInstance()->CreateTextureFromText(&player_name_cool_down, font, (name+" dash cool down").c_str(), {0, 0, 0, 100});
     TTF_CloseFont(font);
 
-    player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 4, 2.0f, 6));
-    if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 1200-32*2, 0, 32, 32, ID, 1, 4, 2.0f, 6));
+    player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 2, 4, 2.0f, 6));
+    if (Select::GetInstance()->mode == 2) player1 = new Player1(new Properties(Select::GetInstance()->selected_skin1.c_str(), 1200-32*2, 0, 32, 32, ID, 2, 4, 2.0f, 6));
     hover_platform = new Hover_platform(new Properties("Hover_platform", 525, 437, 150, 74, ID, 1));
 
-    Planet* moon = 
-    new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
+    Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
     countSun = 0;
     max_sun = 1440 / Select::GetInstance()->minute_per_sun;
     DAYS = 1;
@@ -886,25 +886,25 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
     //////////////////////////////////////////
     if (Player1::GetInstance() != nullptr){
         if (scancode == PLAYER1_JUMP_SCANCODE && ((Player1::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player1::GetInstance()->lastJump >= 0)) || Player1::GetInstance()->GetRemainJumps() == 1)/* && Player1::GetInstance()->GetAllowInput() == true*/){
-        Mixer::GetInstance()->Play("res/Sounds/sfx_jump.wav", SFX, 0);    
-        if (Player1::GetInstance()->GetRemainJumps() == 2) {
-            Player1::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
-            Player1::GetInstance()->lastJump = SDL_GetTicks();
-            Player1::GetInstance()->j1_x = Player1::GetInstance()->getTransform()->x+5;
-            Player1::GetInstance()->j1_y = Player1::GetInstance()->getTransform()->y + Player1::GetInstance()->getCollider().GetBox().h-6;
+            Mixer::GetInstance()->Play("res/Sounds/sfx_jump.wav", SFX, 0);    
+            if (Player1::GetInstance()->GetRemainJumps() == 2) {
+                Player1::GetInstance()->JumpDust1.SetProp("Jump_Dust", 0, 5, 80);
+                Player1::GetInstance()->lastJump = SDL_GetTicks();
+                Player1::GetInstance()->j1_x = Player1::GetInstance()->getTransform()->x+5;
+                Player1::GetInstance()->j1_y = Player1::GetInstance()->getTransform()->y + Player1::GetInstance()->getCollider().GetBox().h-6;
+            }
+            else {
+                Player1::GetInstance()->JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
+                Player1::GetInstance()->j2_x = Player1::GetInstance()->getTransform()->x+5;
+                Player1::GetInstance()->j2_y = Player1::GetInstance()->getTransform()->y + Player1::GetInstance()->getCollider().GetBox().h-6;
+            }
+            Player1::GetInstance()->ReduceJumps();
+            Player1::GetInstance()->SetInAir() = true;
+            Player1::GetInstance()->SetAllowInput() = false;
+            Player1::GetInstance()->SetPrevState();
+            Player1::GetInstance()->SetState(STATE::JUMPING, Player1::GetInstance()->GetState().second);
+            Player1::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
         }
-        else {
-            Player1::GetInstance()->JumpDust2.SetProp("Jump_Dust", 0, 5, 80);
-            Player1::GetInstance()->j2_x = Player1::GetInstance()->getTransform()->x+5;
-            Player1::GetInstance()->j2_y = Player1::GetInstance()->getTransform()->y + Player1::GetInstance()->getCollider().GetBox().h-6;
-        }
-        Player1::GetInstance()->ReduceJumps();
-        Player1::GetInstance()->SetInAir() = true;
-        Player1::GetInstance()->SetAllowInput() = false;
-        Player1::GetInstance()->SetPrevState();
-        Player1::GetInstance()->SetState(STATE::JUMPING, Player1::GetInstance()->GetState().second);
-        Player1::GetInstance()->GetRigidBody()->applyVelocityY(JUMP_VELOCITY * UPWARD);
-    }
         if (scancode == PLAYER1_DASH_SCANCODE && Player1::GetInstance()->CanDash() && SDL_GetTicks() - Player1::GetInstance()->GetLastDash() >= DASH_COOL_DOWN){
             Player1::GetInstance()->Dashing() = true;
             Player1::GetInstance()->CanDash() = false;

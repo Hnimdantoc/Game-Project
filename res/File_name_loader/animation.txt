@@ -14,6 +14,7 @@ top_cursor res/Assests/top_cursor.png
 left_cursor res/Assests/left_cursor.png
 right_cursor res/Assests/right_cursor.png
 heart res/Assests/heart.png
+rainbow_dash res/Assests/rainbow_dash.png
 ball res/Assests/ball.png
 dash_bar res/Assests/dash_bar.png
 volume res/Assests/volume.png

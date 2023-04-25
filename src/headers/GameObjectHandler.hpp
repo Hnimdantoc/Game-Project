@@ -18,6 +18,7 @@ public:
     int* ptr_current_scene;
 private:
     static GameObjectHandler* Static_Instance;
+    std::set<GameObject*> trash;
     std::map<int, std::set<GameObject*, custom_set>> GameObjectMap;
 public:
     static GameObjectHandler* GetInstance(){return Static_Instance = (Static_Instance != nullptr) ? Static_Instance : new GameObjectHandler();}
@@ -28,8 +29,10 @@ public:
         for (GameObject* i : GameObjectMap[_scene]) if (strcmp(i->GetID(), ID) == 0) return i;
         return nullptr;
     }
+    inline void AddToTrash(GameObject* i){trash.insert(i);}
 
     ~GameObjectHandler();
+    void Terminate();
     void Update(float& dt);
     void Render();
     void Clean(int ID = *GameObjectHandler::GetInstance()->ptr_current_scene);

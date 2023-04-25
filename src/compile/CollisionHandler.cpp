@@ -36,7 +36,7 @@ void CollisionHandler::PlayerCollisions(Collider& player_rect){
     Player::GetInstance()->UpdateCollider();
     // Check collision with every gameobject
     for (std::set<GameObject*, custom_set>::iterator i = ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).begin(); i != ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).end(); i++){
-        if (*i == Player::GetInstance()) continue;
+        if (*i == Player::GetInstance() || strcmp((*i)->GetID(), "trail") == 0) continue;
         if (*i == Player1::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x < Player1::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w + 25){
             Player::GetInstance()->SetTransform()->x = Player1::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w - OFFSET;
         }
@@ -116,7 +116,7 @@ void CollisionHandler::Player1Collisions(Collider& player_rect){
 
     // Check collision with every gameobject
     for (std::set<GameObject*, custom_set>::iterator i = ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).begin(); i != ((*GameObjectHandler::GetInstance()->GetGameObjectMap())[*GameObjectHandler::GetInstance()->ptr_current_scene]).end(); i++){
-        if (*i == Player1::GetInstance()) continue;
+        if (*i == Player1::GetInstance() || strcmp((*i)->GetID(), "trail") == 0) continue;
         if (*i == Player::GetInstance() && CheckCollision((*i)->getCollider(), player_rect) && player_rect.GetBox().x < Player::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w + 25){
             Player1::GetInstance()->SetTransform()->x = Player::GetInstance()->getCollider().GetBox().x - player_rect.GetBox().w - OFFSET;
         }

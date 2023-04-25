@@ -3,6 +3,7 @@
 #include "GameObjectHandler.hpp"
 #include "Planet.hpp"
 #include "Scenes.hpp"
+#include "Trail.hpp"
 
 Player* Player::Static_Instance = nullptr;
 
@@ -72,7 +73,7 @@ void Player::Physics(float& dt){
         Player::GetInstance()->GetRigidBody()->applyVelocityX(Player::GetInstance()->GetRigidBody()->getAcceleration().x * dt + Player::GetInstance()->GetRigidBody()->getVelocity().x);
         Player::GetInstance()->DashTime() += dt;
         Player::GetInstance()->DashLength() -= abs(Player::GetInstance()->GetRigidBody()->getPosition().x) + abs(Player::GetInstance()->GetRigidBody()->getPosition().y);
-        if (Player::GetInstance()->DashTime() >= 0.15 || Player::GetInstance()->DashLength() <= 0) {
+        if (Player::GetInstance()->DashTime() >= 0.2 || Player::GetInstance()->DashLength() <= 0) {
             Player::GetInstance()->CanDash() = true;
             Player::GetInstance()->Dashing() = false;
             Player::GetInstance()->SetAllowInput() = true;
@@ -112,6 +113,7 @@ void Player::Update(float& dt){
     if (allowInput){
         if (Input::GetInstance()->GetKeyDown(PLAYER_GO_RIGHT_SCANCODE)){
             if (Input::GetInstance()->GetKeyDown(PLAYER_GO_LEFT_SCANCODE) && enableSmoothMovement){
+                Trail* trail = new Trail(_Collider.GetBox().x+_Collider.GetBox().w/2, _Collider.GetBox().y+_Collider.GetBox().h-32);
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
                 Physics(dt);
                 SetPrevState();
@@ -122,6 +124,7 @@ void Player::Update(float& dt){
                 }
             }
             else{
+                Trail* trail = new Trail(_Collider.GetBox().x+_Collider.GetBox().w/2, _Collider.GetBox().y+_Collider.GetBox().h-32);
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * FORWARD);
                 Physics(dt);
                 SetPrevState();
@@ -133,6 +136,7 @@ void Player::Update(float& dt){
             }
         }
         else if (Input::GetInstance()->GetKeyDown(PLAYER_GO_LEFT_SCANCODE)){
+            Trail* trail = new Trail(_Collider.GetBox().x+_Collider.GetBox().w/2, _Collider.GetBox().y+_Collider.GetBox().h-32);
             _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
             Physics(dt);
             SetPrevState();
@@ -145,6 +149,9 @@ void Player::Update(float& dt){
         else Physics(dt);
     }
     else Physics(dt);
+    if (dashing && playerAction.second == FACE::LEFT) Trail* trail = new Trail(_Collider.GetBox().x+abs(_Collider.GetBox().w-64)/2, _Collider.GetBox().y+_Collider.GetBox().h-32, 64, 32);
+    else if (dashing && playerAction.second == FACE::RIGHT) Trail* trail = new Trail(_Collider.GetBox().x+abs(_Collider.GetBox().w-64)/2-64, _Collider.GetBox().y+_Collider.GetBox().h-32, 64, 32);
+    if (inAir) Trail* trail = new Trail(_Collider.GetBox().x+(_Collider.GetBox().w-32)/2, _Collider.GetBox().y+_Collider.GetBox().h-32, 32, 32);
     // Update the Animation
     _Animation->Update(dt);
     if (!(JumpDust1.GetPrevFrame() == 4 && JumpDust1.GetFrame() == 0) && jumps == 1) JumpDust1.Update(dt);

@@ -24,7 +24,7 @@ public:
     void AnimationRender(const char* ID, int x, int y, int w, int h, int row, int frame, float SCALE = 1.0f, SDL_RendererFlip _flip = SDL_FLIP_NONE);
 
     TTF_Font* LoadFont(const char* fontPath, int fontSize);
-    inline SDL_Texture* GetTextureFromMap(const char* ID){return TextureMap[ID];} 
+    inline SDL_Texture** GetTextureFromMap(const char* ID){return &TextureMap[ID];} 
     inline std::map<std::string, SDL_Texture*> GetTextureMap(){return TextureMap;} 
     void CreateTextureFromText(SDL_Texture** text_texture, TTF_Font* font, const char* text, const SDL_Color& color);
 
