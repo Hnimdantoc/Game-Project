@@ -8,6 +8,8 @@
 #include "Hover_platform.hpp"
 #include <utility>
 #include <vector>
+#include "Mixer.hpp"
+#include <math.h>
 
 
 class Menu : public Scene
@@ -21,7 +23,8 @@ public:
 private:
     static Menu* static_instance;
     int ID;
-    bool ChoosingMode;
+    bool ChoosingMode, tutoring = false;
+    Animation merchantIdle;
     TTF_Font* font;
     SDL_Texture* Play;
     SDL_Texture* Option;
@@ -33,6 +36,26 @@ private:
 public:
     Menu();
     ~Menu();
+    void Update(float& dt);
+    void Render();
+    void KeyDown(SDL_Scancode scancode);
+    void KeyUp(SDL_Scancode scancode);
+};
+
+class Option : public Scene {
+public:
+    static Option* GetInstance(){return static_instance;}
+private:
+    static Option* static_instance;
+    int ID;
+    int oldVolume = ceil(Mixer::GetInstance()->GetVolume()/25.0)+1;
+    int currentVolume = oldVolume;
+    std::vector<std::vector<int>> setCoord = {
+        {559,232}, {675,232}, {803,232}, {942,232}, {1096,232}
+    };
+public:
+    Option();
+    ~Option();
     void Update(float& dt);
     void Render();
     void KeyDown(SDL_Scancode scancode);
@@ -92,6 +115,11 @@ private:
     float spawnSun = 0;
     int countSun, countMoon;
     int samurai_x = 210, GO = 1;
+    int song = 0;
+    std::pair <int, int> dash_cool_down = {-370, 506};
+    std::pair <int, int> dash_cool_down_1 = {830-370, 506};
+    std::vector <const char*> playlist = {"res/Sounds/8_bit_adventure.mp3",
+                                          "res/Sounds/ping2.mp3"};
     TTF_Font* freedom;
     Player1* player1;
     Player* player;
@@ -100,7 +128,9 @@ private:
     SDL_Texture* days_texture;  
     SDL_Texture* hours_texture; 
     SDL_Texture* player_name;
+    SDL_Texture* player_name_cool_down;
     SDL_Texture* player1_name;
+    SDL_Texture* player1_name_cool_down;
     SDL_Rect p_rect, p1_rect;
     Hover_platform* hover_platform;
     Animation samurai_merchant_idle;

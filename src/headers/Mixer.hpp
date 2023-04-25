@@ -24,9 +24,10 @@ public:
 
     void Init();
     void Load(const char* filePathMusic, const char* filePathSFX);
-    void Play(const char* sound, int music_or_sfx, int loops = 1, bool FadeIn = false, int ms = 0);
+    void Play(const char* sound, int music_or_sfx, int loops = 0, bool FadeIn = false, int ms = 0);
     void Toggle();
-    inline void SetVolume(int _volume){volume = (MIX_MAX_VOLUME * _volume) / 100;}
+    inline int GetVolume(){return volume*100/MIX_MAX_VOLUME;}
+    inline void SetVolume(int _volume){volume = (MIX_MAX_VOLUME * _volume) / 100;Toggle();Toggle();}
 private:
     Mixer();
 };

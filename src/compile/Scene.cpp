@@ -11,6 +11,10 @@ void Scene::MakeRectFromTexture(SDL_Texture** texture, SDL_Rect* rect, int x, in
     SDL_QueryTexture(*texture, nullptr, nullptr, &rect->w, &rect->h);
 }
 
+void Scene::MouseMotion(){
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+}
+
 void Scene::Update(float& dt){
     GameObjectHandler::GetInstance()->Update(dt);
 }

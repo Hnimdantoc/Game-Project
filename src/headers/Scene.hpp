@@ -16,4 +16,7 @@ public:
     virtual void MakeRectFromTexture(SDL_Texture** texture, SDL_Rect* rect, int x, int y);
     virtual void KeyDown(SDL_Scancode scancode) = 0;
     virtual void KeyUp(SDL_Scancode scancode) = 0;
+    virtual void MouseMotion();
+protected:
+    int mouse_x, mouse_y;
 };

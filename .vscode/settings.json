@@ -53,7 +53,8 @@
         "xloctime": "cpp",
         "algorithm": "cpp",
         "random": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "*.rc": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

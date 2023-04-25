@@ -19,8 +19,9 @@
 #define PLAYER_SCALE 2
 
 #define MENU_SCENE 0
-#define SELECT_SCENE 1
-#define PLAYSCENE 2
+#define OPTION_SCENE 1
+#define SELECT_SCENE 2
+#define PLAYSCENE 3
 #define PAUSE_SCENE -1
 #define SCORE_SCENE -2
 

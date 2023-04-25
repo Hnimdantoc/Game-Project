@@ -1,7 +1,7 @@
-Fuck
-player2
-Off
-player1
+player 1
+player
+player 2
+player
 1
-2
-30
+0
+0

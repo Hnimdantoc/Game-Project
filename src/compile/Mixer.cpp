@@ -18,9 +18,9 @@ void Mixer::Init(){
 
 void Mixer::Play(const char* sound, int music_or_sfx, int loops, bool FadeIn, int ms){
     if (music_or_sfx == MUSIC) {
+        Mix_VolumeMusic(volume);
         if (FadeIn) Mix_FadeInMusic(musicMap[sound], loops, ms) == -1;
         else Mix_PlayMusic(musicMap[sound], loops);
-        Mix_VolumeMusic(volume);
     }
     else if (music_or_sfx == SFX) {
         Mix_Volume(-1, volume);
@@ -29,6 +29,7 @@ void Mixer::Play(const char* sound, int music_or_sfx, int loops, bool FadeIn, in
 }
 
 void Mixer::Toggle(){
+    Mix_VolumeMusic(volume);
     if (Mix_PausedMusic() == 1) Mix_ResumeMusic();
     else Mix_PauseMusic();
 }

@@ -1,5 +1,5 @@
-HideOnBush
-player2
-1
-15
+player
+player
+4
+21
 30

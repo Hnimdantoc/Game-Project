@@ -1,12 +1,13 @@
 #include "Scenes.hpp"
 #include <fstream>
-#include "Mixer.hpp"
 /********************************************************************************/
 Menu* Menu::static_instance = nullptr;
 Menu::Menu() : ID(MENU_SCENE) {        
     SceneManager::GetInstance()->addScene(ID, this);
     static_instance = this;
     ChoosingMode = false;
+
+    merchantIdle.SetProp("samurai_merchant", 1, 4, 150);
 
     font = TextureManager::GetInstance()->LoadFont("res/Fonts/arcade.ttf", 200);
     TextureManager::GetInstance()->CreateTextureFromText(&Play, font, "PLAY", {255, 255, 255});
@@ -42,10 +43,15 @@ Menu::~Menu(){
     SDL_DestroyTexture(Mode_2);
 }
 void Menu::Update(float& dt){
+    if ((!tutoring && mouse_x >= 206 && mouse_x <= 239 && mouse_y >= 543 && mouse_y <= 581)) tutoring = true;
+    else if (tutoring && mouse_x<206 || mouse_x > 977 || mouse_y < 14 || mouse_y > 652) tutoring = false;
+    merchantIdle.Update(dt);
     GameObjectHandler::GetInstance()->Update(dt);
 }
+
 void Menu::Render(){
     TextureManager::GetInstance()->Render("menu_background", 0, 0, WIDTH, HEIGHT);
+    merchantIdle.Render(190, 531, 78, 50, 1);
     TTF_CloseFont(font);
     SDL_DestroyTexture(Play);
     SDL_DestroyTexture(Option);
@@ -92,7 +98,7 @@ void Menu::Render(){
         TextureManager::GetInstance()->CreateTextureFromText(&Mode_2, font, "Co op", {26, 72, 86});
     }
     ///
-
+    TextureManager::GetInstance()->Render("ball", currentRect->x-95, currentRect->y + 64/2, 64, 95);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Play, nullptr, &play_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Option, nullptr, &option_rect);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Exit, nullptr, &exit_rect);
@@ -101,27 +107,33 @@ void Menu::Render(){
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Mode_2, nullptr, &mode_2_rect);
     }
     SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
+    if (tutoring) TextureManager::GetInstance()->Render("tutor", 0, 0, WIDTH, HEIGHT);
 }
 
 void Menu::KeyDown(SDL_Scancode scancode){
+    if (tutoring) return;
     switch(scancode){
         case SDL_SCANCODE_DOWN:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             j++;
             if (j == vectorRect[i].size()) j = 0;
             currentRect = vectorRect[i][j];
             break;
         case SDL_SCANCODE_UP:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             j--;
             if (j < 0) j = vectorRect[i].size()-1;
             currentRect = vectorRect[i][j];
             break;
         case SDL_SCANCODE_RETURN:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             if (!ChoosingMode){
                 if (currentRect == &play_rect) {
                     ChoosingMode = true;
                     i++;
                     currentRect = &mode_1_rect;
                 }
+                else if (Menu::GetInstance()->currentRect == &option_rect) SceneManager::GetInstance()->ChangeScene(OPTION_SCENE);
                 else if (Menu::GetInstance()->currentRect == &exit_rect) Engine::GetInstance()->setGameState() = GAME_STATE::EXIT;
                 return;
             }
@@ -130,6 +142,7 @@ void Menu::KeyDown(SDL_Scancode scancode){
             SceneManager::GetInstance()->ChangeScene(SELECT_SCENE);
             break;
         case SDL_SCANCODE_ESCAPE:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             if (ChoosingMode) {
                 ChoosingMode = false;
                 i--;
@@ -143,6 +156,50 @@ void Menu::KeyDown(SDL_Scancode scancode){
 void Menu::KeyUp(SDL_Scancode scancode){
 
 }
+/********************************************************************************/
+
+Option* Option::static_instance = nullptr;
+Option::Option() : ID(OPTION_SCENE) {
+    SceneManager::GetInstance()->addScene(ID, this);
+    static_instance = this;
+}
+
+Option::~Option(){}
+
+void Option::Update(float& dt){}
+
+void Option::Render(){
+    TextureManager::GetInstance()->Render("option", 0, 0, WIDTH, HEIGHT);
+    TextureManager::GetInstance()->Render("volume", setCoord[oldVolume-1][0], setCoord[oldVolume-1][1], 35, 35);
+    if (currentVolume != oldVolume) TextureManager::GetInstance()->Render("volume1", setCoord[currentVolume-1][0], setCoord[currentVolume-1][1], 35, 35);
+}
+
+void Option::KeyDown(SDL_Scancode scancode){
+    switch(scancode){
+        case SDL_SCANCODE_RIGHT:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
+            currentVolume++;
+            if (currentVolume == 6) currentVolume = 1;
+            break;
+        case SDL_SCANCODE_LEFT:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
+            currentVolume--;
+            if (currentVolume == 0) currentVolume = 5;
+            break;
+        case SDL_SCANCODE_RETURN:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
+            oldVolume = currentVolume;
+            Mixer::GetInstance()->SetVolume((currentVolume-1)*25);
+            break;
+        case SDL_SCANCODE_ESCAPE:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
+            SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
+            break;        
+    }
+}
+
+void Option::KeyUp(SDL_Scancode scancode){}
+
 /********************************************************************************/
 Select* Select::static_instance = nullptr;
 Select::Select() : ID(SELECT_SCENE){
@@ -377,15 +434,18 @@ void Select::KeyDown(SDL_Scancode scancode){
     if (!name_entered || (mode == 2 && skin_has_been_selected && !name1_entered)) {
         switch(scancode){
             case SDL_SCANCODE_BACKSPACE:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 if (!name_entered && n_player.length() > 0) n_player.erase(n_player.end()-1, n_player.end());
                 else if (!name1_entered && n_player1.length() > 0) n_player1.erase(n_player1.end()-1, n_player1.end());
                 break;
             case SDL_SCANCODE_RETURN:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 if (!name_entered) name_entered = true;
                 else if (!name1_entered) name1_entered = true;
                 Skins_iterator = 0;
                 break;
             case SDL_SCANCODE_ESCAPE:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
                 return;
                 break;
@@ -395,6 +455,7 @@ void Select::KeyDown(SDL_Scancode scancode){
     if (!skin_has_been_selected){
         switch (scancode){
             case SDL_SCANCODE_LEFT:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 Skins_iterator++;
                 if (Skins_iterator == vectorSkins.size()) Skins_iterator = 0;
                 selected_skin = vectorSkins[Skins_iterator];
@@ -410,6 +471,7 @@ void Select::KeyDown(SDL_Scancode scancode){
                 else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20);
                 break;
             case SDL_SCANCODE_RIGHT:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 Skins_iterator--;
                 if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
                 selected_skin = vectorSkins[Skins_iterator];
@@ -425,11 +487,13 @@ void Select::KeyDown(SDL_Scancode scancode){
                 else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20, SDL_FLIP_NONE, true);
                 break;
             case SDL_SCANCODE_RETURN:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 skin_has_been_selected = true;
                 if (mode == 2) Skins_iterator = 0;
                 return;
                 break;
             case SDL_SCANCODE_ESCAPE:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
                 return;
                 break;
@@ -439,6 +503,7 @@ void Select::KeyDown(SDL_Scancode scancode){
     if (!skin1_has_been_selected && skin_has_been_selected && mode == 2 && name1_entered){
         switch (scancode){
             case SDL_SCANCODE_A:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 Skins_iterator++;
                 if (Skins_iterator == vectorSkins.size()) Skins_iterator = 0;
                 selected_skin1 = vectorSkins[Skins_iterator];
@@ -454,6 +519,7 @@ void Select::KeyDown(SDL_Scancode scancode){
                 else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20);
                 break;
             case SDL_SCANCODE_D:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 Skins_iterator--;
                 if (Skins_iterator < 0) Skins_iterator = vectorSkins.size()-1;
                 selected_skin1 = vectorSkins[Skins_iterator];
@@ -469,10 +535,12 @@ void Select::KeyDown(SDL_Scancode scancode){
                 else if (rotate == 3) rotate_3.SetProp("rotate_3", 0, 10, 20, SDL_FLIP_NONE, true);
                 break;
             case SDL_SCANCODE_RETURN:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 skin1_has_been_selected = true;
                 return;
                 break;
             case SDL_SCANCODE_ESCAPE:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
                 return;
                 break;
@@ -482,6 +550,7 @@ void Select::KeyDown(SDL_Scancode scancode){
     if ((skin_has_been_selected && mode == 1) || (mode == 2 && skin_has_been_selected && skin1_has_been_selected)) {
         switch (scancode){
             case SDL_SCANCODE_LEFT:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 Minute_iterator++;
                 minute_per_sun += 15;
                 if (Minute_iterator == vectorMinute.size()) Minute_iterator = 0;
@@ -489,6 +558,7 @@ void Select::KeyDown(SDL_Scancode scancode){
                 selected_minutes = vectorMinute[Minute_iterator];
                 break;
             case SDL_SCANCODE_RIGHT:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 Minute_iterator--;
                 minute_per_sun-=15;
                 if (Minute_iterator < 0) Minute_iterator = vectorMinute.size()-1;
@@ -496,10 +566,12 @@ void Select::KeyDown(SDL_Scancode scancode){
                 selected_minutes = vectorMinute[Minute_iterator];
                 break;
             case SDL_SCANCODE_RETURN:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 SceneManager::GetInstance()->ChangeScene(PLAYSCENE);
                 return;
                 break;
             case SDL_SCANCODE_ESCAPE:
+                Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
                 SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
                 return;
                 break;
@@ -520,15 +592,17 @@ Scene_0::Scene_0() : ID(PLAYSCENE) {
     Left_platform = new GameObject(new Properties("Left_platform", 0, 506, 370, 40, ID, 1));
     Right_platform = new GameObject(new Properties("Right_platform", 830, 506, 370, 40, ID, 1));
     TTF_Font* font = TextureManager::GetInstance()->LoadFont("res/Fonts/mono.ttf", 20);
+    player1_name = nullptr;
     name = Select::GetInstance()->n_player;
     if (Select::GetInstance()->mode == 2) name1 = Select::GetInstance()->n_player1;
-    player1_name = nullptr;
     player_name = nullptr;
-    if (Select::GetInstance()->mode == 2) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, name1.c_str(), {0, 0, 0});
     if (name == "" && Select::GetInstance()->mode == 1) name = "player";
     else if (name == "" && Select::GetInstance()->mode == 2) name = "player 1";
     if (name1 == "" && Select::GetInstance()->mode == 2) name1 = "player 2";
-    TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, name.c_str(), {0, 0, 0});
+    if (Select::GetInstance()->mode == 2) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, name1.c_str(), {224, 142, 94});
+    if (Select::GetInstance()->mode == 2) TextureManager::GetInstance()->CreateTextureFromText(&player1_name_cool_down, font, (name1 + " dash cool down").c_str(), {0, 0, 0, 100});
+    TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, name.c_str(), {47, 148, 147});
+    TextureManager::GetInstance()->CreateTextureFromText(&player_name_cool_down, font, (name+" dash cool down").c_str(), {0, 0, 0, 100});
     TTF_CloseFont(font);
 
     player = new Player(new Properties(Select::GetInstance()->selected_skin.c_str(), 0, 0, 32, 32, ID, 1, 4, 2.0f, 6));
@@ -555,6 +629,11 @@ Scene_0::~Scene_0(){
 }
 void Scene_0::Update(float& dt){
     spawnSun += dt;
+    if (Mix_PlayingMusic() == 0) {
+        song++;
+        if (song == playlist.size()) song = 0;
+        Mixer::GetInstance()->Play(playlist[song],MUSIC);
+    }
     UpdateIdle(dt);
     if (spawnSun >= 1 && countSun < max_sun){
         Planet* sun = new Planet(new Properties("sun", 592, 2, 48, 48, ID, 1, 0, 1/3.0f, 9));
@@ -566,6 +645,7 @@ void Scene_0::Update(float& dt){
         countMoon = DAYS;
         HOURS = {0, 0};
         countSun = 0;
+        Mixer::GetInstance()->Play("res/Sounds/next_level.wav", SFX, 0);
         Planet* moon = new Planet(new Properties("moon", 592, 2, 48, 48, ID, 1, 0, 1.0f, 8));
     }
     {
@@ -677,10 +757,33 @@ void Scene_0::Render(){
     RenderSamuraiMerchant();
     Rockstand_merchant_idle.Render(536, hover_platform->getCollider().GetBox().y-64, 128, 64);
     GameObjectHandler::GetInstance()->Render();
+
+    dash_cool_down.first = 0 - (SDL_GetTicks() - Player::GetInstance()->GetLastDash()) / (float)DASH_COOL_DOWN * 370;
+    if (dash_cool_down.first < -370) dash_cool_down.first = -370;
+    TextureManager::GetInstance()->Render("dash_bar", dash_cool_down.first, dash_cool_down.second, 370, 40);
+    if (Player1::GetInstance() != nullptr){
+        dash_cool_down_1.first = 0 - (SDL_GetTicks() - Player1::GetInstance()->GetLastDash()) / (float)DASH_COOL_DOWN * 370;
+        if (dash_cool_down_1.first > WIDTH+370) dash_cool_down_1.first = -370;
+        TextureManager::GetInstance()->Render("dash_bar", dash_cool_down_1.first, dash_cool_down_1.second, 370, 40);
+    }
+
     MakeRectFromTexture(&player_name, &p_rect, Player::GetInstance()->getTransform()->x + 32 - p_rect.w/2, Player::GetInstance()->getTransform()->y-20);
     SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name, nullptr, &p_rect);
-    if (Player1::GetInstance() != nullptr) MakeRectFromTexture(&player1_name, &p1_rect, Player1::GetInstance()->getTransform()->x + 32 - p1_rect.w/2, Player1::GetInstance()->getTransform()->y-20);
-    if (Player1::GetInstance() != nullptr) SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &p1_rect);
+    MakeRectFromTexture(&player_name_cool_down, &p_rect, 0, 0);
+    p_rect.x = (370-p_rect.w)/2;
+    p_rect.y = 506+10;
+    SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player_name_cool_down, nullptr, &p_rect);
+    MakeRectFromTexture(&player_name, &p_rect, Player::GetInstance()->getTransform()->x + 32 - p_rect.w/2, Player::GetInstance()->getTransform()->y-20);
+    
+    if (Player1::GetInstance() != nullptr) {
+        MakeRectFromTexture(&player1_name, &p1_rect, Player1::GetInstance()->getTransform()->x + 32 - p1_rect.w/2, Player1::GetInstance()->getTransform()->y-20);
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name, nullptr, &p1_rect);
+        MakeRectFromTexture(&player1_name_cool_down, &p1_rect, 0, 0);
+        p1_rect.x = (370-p1_rect.w)/2+830;
+        p1_rect.y = 506+10;
+        SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), player1_name_cool_down, nullptr, &p1_rect);
+        MakeRectFromTexture(&player1_name, &p1_rect, Player1::GetInstance()->getTransform()->x + 32 - p1_rect.w/2, Player1::GetInstance()->getTransform()->y-20);
+    }
 }
 
 void Scene_0::UpdateIdle(float dt){
@@ -714,6 +817,7 @@ void Scene_0::RenderSamuraiMerchant(){
 }
 
 void Scene_0::KeyDown(SDL_Scancode scancode){
+    if (scancode == SDL_SCANCODE_P) Mix_HaltMusic();
     if (scancode == PLAYER_JUMP_SCANCODE && ((Player::GetInstance()->GetRemainJumps() == 2 && (SDL_GetTicks() - Player::GetInstance()->lastJump >= 0)) || Player::GetInstance()->GetRemainJumps() == 1)/* && Player::GetInstance()->GetAllowInput() == true*/){
         Mixer::GetInstance()->Play("res/Sounds/sfx_jump.wav", SFX, 0);
         if (Player::GetInstance()->GetRemainJumps() == 2) {
@@ -751,6 +855,7 @@ void Scene_0::KeyDown(SDL_Scancode scancode){
         else if (Player::GetInstance()->GetState().second == FACE::LEFT) Player::GetInstance()->GetRigidBody()->applyVelocityX(DASH_VELLOCITY * BACKWARD);
     }
     if (scancode == SDL_SCANCODE_ESCAPE) {
+        Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
         Player::GetInstance()->SetPrevState();
         Player::GetInstance()->NeedChangeState() = true;
         if (Player::GetInstance()->GetState().first == RUNNING && Player::GetInstance()->GetState().second == LEFT){
@@ -918,16 +1023,19 @@ void Pause::Render(){
 void Pause::KeyDown(SDL_Scancode scancode){
     switch (scancode){
         case SDL_SCANCODE_LEFT:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             i--;
             if (i < 0) i = vectorRect.size() - 1;
             currentRect = vectorRect[i];
             break;
         case SDL_SCANCODE_RIGHT:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             i++;
             if (i == vectorRect.size()) i = 0;
             currentRect = vectorRect[i];
             break;
         case SDL_SCANCODE_RETURN:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             if (currentRect == &resume_rect) SceneManager::GetInstance()->ChangeScene(PLAYSCENE, false, false, true);
             else if (currentRect == &menu_rect) {
                 SceneManager::GetInstance()->Clean(PLAYSCENE);
@@ -1061,25 +1169,25 @@ void Score::Render(){
         font = TextureManager::GetInstance()->LoadFont("res/Fonts/mono.ttf", 35);
         TextureManager::GetInstance()->CreateTextureFromText(&temp, font, name.c_str(), {26, 72, 86, 255});
         MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
-        temp_rect.x = 671+32*4-temp_rect.w/2;
+        temp_rect.x = 671+32*4-temp_rect.w/2-50;
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
 
         TextureManager::GetInstance()->CreateTextureFromText(&temp, font, best_name.c_str(), {26, 72, 86, 255});
         MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
-        temp_rect.x = 68+32*4-temp_rect.w/2;
+        temp_rect.x = 68+32*4-temp_rect.w/2-50;
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
 
         TextureManager::GetInstance()->CreateTextureFromText(&temp, font, best_name1.c_str(), {26, 72, 86, 255});
         MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
-        temp_rect.x = 392+32*4-temp_rect.w/2;
+        temp_rect.x = 392+32*4-temp_rect.w/2-50;
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
         
         TextureManager::GetInstance()->CreateTextureFromText(&temp, font, name1.c_str(), {26, 72, 86, 255});
         MakeRectFromTexture(&temp, &temp_rect, 0, 300-27);
-        temp_rect.x = 995+32*4-temp_rect.w/2;
+        temp_rect.x = 995+32*4-temp_rect.w/2-50;
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), temp, nullptr, &temp_rect);
         SDL_DestroyTexture(temp);
 
@@ -1118,10 +1226,10 @@ void Score::Render(){
         TTF_CloseFont(font);
         font = nullptr;
 
-        curr_Idle.Render(671, 300, 32, 32, 8);
-        best_Idle.Render(68, 300, 32, 32, 8);
-        curr1_Idle.Render(995, 300, 32, 32, 8);
-        best1_Idle.Render(392, 300, 32, 32, 8);
+        curr_Idle.Render(671-50, 300, 32, 32, 8);
+        best_Idle.Render(68-50, 300, 32, 32, 8);
+        curr1_Idle.Render(995-50, 300, 32, 32, 8);
+        best1_Idle.Render(392-50, 300, 32, 32, 8);
     }
 
 }
@@ -1129,6 +1237,7 @@ void Score::Render(){
 void Score::KeyDown(SDL_Scancode scancode){
     switch (scancode){
         case SDL_SCANCODE_RETURN:
+            Mixer::GetInstance()->Play("res/Sounds/beep.wav", SFX);
             SceneManager::GetInstance()->ChangeScene(MENU_SCENE);
             return;
             break;

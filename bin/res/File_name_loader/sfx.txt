@@ -1,0 +1,3 @@
+res/Sounds/sfx_jump.wav
+res/Sounds/next_level.wav
+res/Sounds/beep.wav

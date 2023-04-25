@@ -4,8 +4,8 @@
 #include "Scenes.hpp"
 #include "Mixer.hpp"
 #include "CollisionHandler.hpp"
-
 Engine* Engine::static_Instance = nullptr;
+
 
 Engine::Engine():window(NULL), renderer(NULL){};
 

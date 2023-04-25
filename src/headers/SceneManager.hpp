@@ -8,7 +8,7 @@ class SceneManager
 {
 private:
     static SceneManager* static_instance;
-    int currentScene;
+    int currentScene, prevScene;
     std::map<int, Scene*> SceneMap;
 public:
     static SceneManager* GetInstance(){return static_instance = (static_instance != nullptr) ? static_instance : new SceneManager();}
@@ -20,6 +20,7 @@ public:
 
     void KeyDown(SDL_Scancode scancode);
     void KeyUp(SDL_Scancode scancode);
+    void MouseMotion();
 
     void Update(float& dt);
     void Render();

@@ -1,6 +1,6 @@
-yug
-player3
-erwerf
+player 1
+player
+player 2
 player
 1
 0

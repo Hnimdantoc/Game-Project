@@ -1,5 +1,5 @@
-Faker
-player1
+player
+player
 4
-11
-0
+21
+30

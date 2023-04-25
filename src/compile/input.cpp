@@ -23,6 +23,9 @@ void Input::Listen(){
             case SDL_TEXTINPUT:
                 if (SceneManager::GetInstance()->GetCurrentSceneID() == SELECT_SCENE) Select::GetInstance()->KeyText(event);
                 break;
+            case SDL_MOUSEMOTION:
+                SceneManager::GetInstance()->MouseMotion();
+                break;
             case SDL_KEYDOWN:
                 KeyDown();
                 break;

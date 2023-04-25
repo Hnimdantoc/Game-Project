@@ -1,0 +1,5 @@
+res/Sounds/blue_archive.mp3
+res/Sounds/blue_archive1.mp3
+res/Sounds/8_bit_adventure.mp3
+res/Sounds/mario_lofi.mp3
+res/Sounds/ping2.mp3
