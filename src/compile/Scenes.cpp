@@ -107,7 +107,7 @@ void Menu::Render(){
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Mode_1, nullptr, &mode_1_rect);
         SDL_RenderCopy(Engine::GetInstance()->GetRenderer(), Mode_2, nullptr, &mode_2_rect);
     }
-    SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
+    //SDL_RenderDrawRect(Engine::GetInstance()->GetRenderer(), currentRect);
     if (tutoring) TextureManager::GetInstance()->Render("tutor", 0, 0, WIDTH, HEIGHT);
 }
 
@@ -762,8 +762,8 @@ void Scene_0::Render(){
     if (dash_cool_down.first < -370) dash_cool_down.first = -370;
     TextureManager::GetInstance()->Render("dash_bar", dash_cool_down.first, dash_cool_down.second, 370, 40);
     if (Player1::GetInstance() != nullptr){
-        dash_cool_down_1.first = 0 - (SDL_GetTicks() - Player1::GetInstance()->GetLastDash()) / (float)DASH_COOL_DOWN * 370;
-        if (dash_cool_down_1.first > WIDTH+370) dash_cool_down_1.first = -370;
+        dash_cool_down_1.first = 830 + (SDL_GetTicks() - Player1::GetInstance()->GetLastDash()) / (float)DASH_COOL_DOWN * 370;
+        if (dash_cool_down_1.first > WIDTH+370) dash_cool_down_1.first = WIDTH+370;
         TextureManager::GetInstance()->Render("dash_bar", dash_cool_down_1.first, dash_cool_down_1.second, 370, 40);
     }
 
