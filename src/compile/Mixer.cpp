@@ -7,6 +7,7 @@ Mixer::Mixer(){}
 Mixer::~Mixer(){
     for (auto i : musicMap) Mix_FreeMusic(i.second);
     for (auto i : sfxMap) Mix_FreeChunk(i.second);
+    SDL_Log("Mixer destroyed");
 }
 
 

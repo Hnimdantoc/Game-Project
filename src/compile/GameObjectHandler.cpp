@@ -4,8 +4,8 @@ GameObjectHandler* GameObjectHandler::Static_Instance = nullptr;
 GameObjectHandler::GameObjectHandler(){}
 
 GameObjectHandler::~GameObjectHandler(){
-    SDL_Log("GameObject Handler destroyed");
     CleanAllGameObjects();
+    SDL_Log("GameObject Handler destroyed");
 }
 
 void GameObjectHandler::Terminate(){
@@ -43,6 +43,7 @@ void GameObjectHandler::Clean(int ID){
         GameObjectMap[ID].erase(i);
     }
     GameObjectMap[ID].clear();
+    GameObjectMap.erase(ID);
 }
 
 void GameObjectHandler::CleanAllGameObjects(){

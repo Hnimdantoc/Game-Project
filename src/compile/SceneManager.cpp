@@ -66,7 +66,6 @@ void SceneManager::Clean(int ID){
 }
 
 void SceneManager::CleanAllScene(){
-    GameObjectHandler::GetInstance()->~GameObjectHandler();
     for (std::map <int, Scene*>::iterator i = SceneMap.begin(); i != SceneMap.end(); i++){
         delete i->second;
     }

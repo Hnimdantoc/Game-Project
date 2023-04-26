@@ -1,7 +1,7 @@
-ad
-player
-asd
-player2
+dasda
+player3
+asda
+player1
 1
-0
-0
+2
+30

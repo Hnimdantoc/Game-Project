@@ -24,4 +24,5 @@ public:
     inline bool GetAnimationChangeState(){return changeAnimation;}
     inline int GetPrevFrame(){return prevFrame;}
     inline int GetFrame(){return frame;}
+    inline int GetRow(){return spriteRow;}
 };

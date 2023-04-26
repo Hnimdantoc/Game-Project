@@ -1,9 +1,9 @@
-player res/Assests/monster_pink.png
-player1 res/Assests/monster_orange.png
-player2 res/Assests/owl_grey.png
-player3 res/Assests/owl_ocean.png
-player4 res/Assests/dude_blue.png
-player5 res/Assests/dude_purple.png
+player res/Assests/player.png
+player1 res/Assests/player1.png
+player2 res/Assests/player2.png
+player3 res/Assests/player3.png
+player4 res/Assests/player4.png
+player5 res/Assests/player5.png
 background res/backgrounds/background.png
 option res/backgrounds/option_background.png
 background_transparent res/backgrounds/background_transparent.png

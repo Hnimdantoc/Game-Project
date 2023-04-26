@@ -113,7 +113,7 @@ void Player::Update(float& dt){
     if (allowInput){
         if (Input::GetInstance()->GetKeyDown(PLAYER_GO_RIGHT_SCANCODE)){
             if (Input::GetInstance()->GetKeyDown(PLAYER_GO_LEFT_SCANCODE) && enableSmoothMovement){
-                Trail* trail = new Trail(_Collider.GetBox().x+_Collider.GetBox().w/2-14, _Collider.GetBox().y+_Collider.GetBox().h-32, 10, 32, 0);
+                Trail* trail = new Trail(ID, 0, _Animation->GetRow(), _Transform->x, _Transform->y+5, 32, 32, playerAction.second);
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
                 Physics(dt);
                 SetPrevState();
@@ -124,7 +124,7 @@ void Player::Update(float& dt){
                 }
             }
             else{
-                Trail* trail = new Trail(_Collider.GetBox().x+_Collider.GetBox().w/2, _Collider.GetBox().y+_Collider.GetBox().h-32, 10, 32, 1);
+                Trail* trail = new Trail(ID, 0, _Animation->GetRow(), _Transform->x, _Transform->y+5, 10, 32, playerAction.second);
                 _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * FORWARD);
                 Physics(dt);
                 SetPrevState();
@@ -136,7 +136,7 @@ void Player::Update(float& dt){
             }
         }
         else if (Input::GetInstance()->GetKeyDown(PLAYER_GO_LEFT_SCANCODE)){
-            Trail* trail = new Trail(_Collider.GetBox().x+_Collider.GetBox().w/2-14, _Collider.GetBox().y+_Collider.GetBox().h-32, 10, 32, 0);
+            Trail* trail = new Trail(ID, 0, _Animation->GetRow(), _Transform->x, _Transform->y+5, 10, 32, playerAction.second);
             _RigidBody->applyAccelerationX(ACCELERATE_TO_MAX_VELOCITY * BACKWARD);
             Physics(dt);
             SetPrevState();
@@ -149,9 +149,9 @@ void Player::Update(float& dt){
         else Physics(dt);
     }
     else Physics(dt);
-    if (dashing && playerAction.second == FACE::LEFT) Trail* trail = new Trail(_Collider.GetBox().x+abs(_Collider.GetBox().w-64)/2, _Collider.GetBox().y+_Collider.GetBox().h-32, 64, 32, 0);
-    else if (dashing && playerAction.second == FACE::RIGHT) Trail* trail = new Trail(_Collider.GetBox().x+abs(_Collider.GetBox().w-64)/2-64, _Collider.GetBox().y+_Collider.GetBox().h-32, 64, 32, 1);
-    if (inAir) Trail* trail = new Trail(_Collider.GetBox().x+(_Collider.GetBox().w-32)/2, _Collider.GetBox().y+_Collider.GetBox().h-32, 32, 10, 2);
+    if (dashing && playerAction.second == FACE::LEFT) Trail* trail = new Trail(ID, 0, _Animation->GetRow(), _Transform->x, _Transform->y, 64, 32, playerAction.second);
+    else if (dashing && playerAction.second == FACE::RIGHT) Trail* trail = new Trail(ID, 0, _Animation->GetRow(), _Transform->x, _Transform->y, 64, 32, playerAction.second);
+    if (inAir) Trail* trail = new Trail(ID, 0, _Animation->GetRow(), _Transform->x, _Transform->y, 32, 10, playerAction.second);
     // Update the Animation
     _Animation->Update(dt);
     if (!(JumpDust1.GetPrevFrame() == 4 && JumpDust1.GetFrame() == 0) && jumps == 1) JumpDust1.Update(dt);
