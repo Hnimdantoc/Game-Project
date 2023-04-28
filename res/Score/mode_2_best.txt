@@ -1,7 +1,7 @@
-dad
-player
-mom
-player
+Faker
+player1
+fucker
+player4
 1
-6
-0
+22
+30

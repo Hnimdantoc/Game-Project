@@ -7,11 +7,9 @@
 class Trail : public GameObject
 {
 private:
-    int x, y, alpha = 80, frame, row;
-    FACE face;
-    SDL_RendererFlip flip;
+    int x, y, alpha = 150;
 public:
-    Trail(const char* path, int frame, int row, int x, int y, int w, int h, FACE face);
+    Trail(int x, int y, int w, int h, int dir);
     ~Trail();
 
     void Update(float& dt);

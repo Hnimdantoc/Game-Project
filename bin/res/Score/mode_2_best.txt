@@ -1,7 +1,7 @@
-dad
-player
-mom
-player
-1
-6
-0
+jj
+player1
+yamete
+player4
+2
+8
+15

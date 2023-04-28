@@ -53,10 +53,10 @@ void Engine::Quit(){
     delete TextureManager::GetInstance();
     delete CollisionHandler::GetInstance();
     delete GameObjectHandler::GetInstance();
-    SDL_StopTextInput();
-    TTF_Quit();
-    Mix_Quit();
     SDL_DestroyWindow(window);
+    TTF_Quit();
+    SDL_StopTextInput();
+    Mix_Quit();
     SDL_Quit();
 }
 

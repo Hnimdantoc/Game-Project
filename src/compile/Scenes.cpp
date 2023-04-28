@@ -264,10 +264,16 @@ void Select::Update(float& dt){
     if (blink == 0x64 && delta > 0) delta *= -1;
     else if (blink == 0x10 && delta < 0) delta *= -1;
     SDL_Color temp = {0, 0, 0, blink};
-    if (n_player.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, n_player.c_str(), {19, 71, 22});
-    else if (n_player.length() == 0 && !name_entered) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, "enter name", temp);
-    if (mode == 2 && n_player1.length() > 0 && skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, n_player1.c_str(), {19, 71, 22});
-    else if (mode == 2 && n_player1.length() == 0 && !name1_entered) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, "enter name", temp);
+    if (mode == 2){
+        if (n_player.length() > 0 && !skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, n_player.c_str(), {19, 71, 22});
+        else if (n_player.length() == 0 && !name_entered  && !skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, "enter name", temp);
+        if (n_player1.length() > 0 && skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, n_player1.c_str(), {19, 71, 22});
+        else if (n_player1.length() == 0 && !name1_entered && skin_has_been_selected) TextureManager::GetInstance()->CreateTextureFromText(&player1_name, font, "enter name", temp);
+    }
+    else {
+        if (n_player.length() > 0) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, n_player.c_str(), {19, 71, 22});
+        else if (n_player.length() == 0 && !name_entered) TextureManager::GetInstance()->CreateTextureFromText(&player_name, font, "enter name", temp);
+    }
     player_idle.Update(dt);
     player1_idle.Update(dt);
     top_cursor.Update(dt);
